@@ -107,6 +107,7 @@ def main():
     print(f"Raw refusal direction norm: {refusal_dir.norm().item():.4f}")
     
     # Normalize the direction
+    print(refusal_dir.norm())
     refusal_dir_normalized = refusal_dir / refusal_dir.norm()
     
     # Save the direction and metadata
