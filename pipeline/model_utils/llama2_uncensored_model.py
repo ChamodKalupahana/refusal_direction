@@ -12,7 +12,7 @@ from pipeline.model_utils.model_base import ModelBase
 from pipeline.model_utils.llama2_model import orthogonalize_llama2_weights, act_add_llama2_weights
 
 # Template for Llama 2 Uncensored
-LLAMA2_UNCENSORED_CHAT_TEMPLATE = "### Human: {instruction}\n### Assistant:"
+LLAMA2_UNCENSORED_CHAT_TEMPLATE = "### HUMAN:\n{instruction}\n### Assistant:\n"
 
 def format_instruction_llama2_uncensored(
     instruction: str,
