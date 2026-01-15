@@ -19,6 +19,7 @@ import random
 from pipeline.model_utils.model_factory import construct_model_base
 from pipeline.submodules.generate_directions import generate_directions
 from dataset.load_dataset import load_dataset_split
+from tqdm import tqdm
 
 
 def main():
@@ -129,6 +130,60 @@ def main():
         artifact_dir=os.path.join(output_dir, "generate_directions")
     )
     print(f"Full candidate directions shape: {candidate_directions.shape}")
+    
+    # ===== Generate and save completions on harmful and harmless prompts =====
+    completions_dir = os.path.join(output_dir, "completions")
+    os.makedirs(completions_dir, exist_ok=True)
+    
+    print("\n=== Generating completions on harmful prompts ===")
+    harmful_completions = []
+    for i, instruction in enumerate(tqdm(harmful_inst_train, desc="Harmful completions")):
+        inputs = model_base.tokenize_instructions_fn(instructions=[instruction])
+        input_ids = inputs.input_ids.to(model_base.model.device)
+        
+        with torch.no_grad():
+            outputs = model_base.model.generate(
+                input_ids,
+                max_new_tokens=256,
+                do_sample=False,
+                pad_token_id=model_base.tokenizer.pad_token_id
+            )
+        
+        completion = model_base.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        harmful_completions.append({
+            "instruction": instruction,
+            "completion": completion
+        })
+    
+    harmful_completions_path = os.path.join(completions_dir, "harmful_baseline_completions.json")
+    with open(harmful_completions_path, "w") as f:
+        json.dump(harmful_completions, f, indent=4)
+    print(f"Saved harmful completions to: {harmful_completions_path}")
+    
+    print("\n=== Generating completions on harmless prompts ===")
+    harmless_completions = []
+    for i, instruction in enumerate(tqdm(harmless_inst_train, desc="Harmless completions")):
+        inputs = model_base.tokenize_instructions_fn(instructions=[instruction])
+        input_ids = inputs.input_ids.to(model_base.model.device)
+        
+        with torch.no_grad():
+            outputs = model_base.model.generate(
+                input_ids,
+                max_new_tokens=256,
+                do_sample=False,
+                pad_token_id=model_base.tokenizer.pad_token_id
+            )
+        
+        completion = model_base.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        harmless_completions.append({
+            "instruction": instruction,
+            "completion": completion
+        })
+    
+    harmless_completions_path = os.path.join(completions_dir, "harmless_baseline_completions.json")
+    with open(harmless_completions_path, "w") as f:
+        json.dump(harmless_completions, f, indent=4)
+    print(f"Saved harmless completions to: {harmless_completions_path}")
     
     # Compare with the base Yi model direction if available
     base_direction_path = "pipeline/runs/yi-6b-chat/direction.pt"
