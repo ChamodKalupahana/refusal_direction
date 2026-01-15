@@ -35,21 +35,35 @@ def load_harmful_prompts(json_path):
     return data
 
 
-def extract_probability_distribution_with_ablation(model_base, instruction, direction):
+def extract_probability_distribution_with_ablation(model_base, instruction, direction, apply_ablation=True):
     """
     Extract next-token probability distribution at the last token position
-    with refusal direction ablation applied.
+    with optional refusal direction ablation applied.
+    
+    Args:
+        model_base: The model base object.
+        instruction: The instruction/prompt to process.
+        direction: The refusal direction tensor.
+        apply_ablation: If True, apply refusal direction ablation hooks.
+                       If False, run model without intervention.
     """
     # Tokenize the instruction
     inputs = model_base.tokenize_instructions_fn(instructions=[instruction])
     input_ids = inputs.input_ids.to(model_base.model.device)
     attention_mask = inputs.attention_mask.to(model_base.model.device)
     
-    # Get ablation hooks
-    fwd_pre_hooks, fwd_hooks = get_all_direction_ablation_hooks(model_base, direction)
-    
     with torch.no_grad():
-        with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
+        if apply_ablation:
+            # Get ablation hooks
+            fwd_pre_hooks, fwd_hooks = get_all_direction_ablation_hooks(model_base, direction)
+            with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
+                outputs = model_base.model(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    return_dict=True
+                )
+        else:
+            # Run without intervention
             outputs = model_base.model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
