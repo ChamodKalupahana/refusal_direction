@@ -11,8 +11,6 @@ if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 from dataset.load_dataset import load_dataset_split
-
-HARMFUL_SHORTEST_PATH = os.path.join(REPO_ROOT, "dataset", "splits", "harmful_shortest.json")
 from pipeline.model_utils.model_factory import construct_model_base
 from pipeline.submodules.generate_directions import generate_directions
 from pipeline.submodules.select_direction import select_direction
@@ -129,9 +127,7 @@ def main() -> None:
     if args.layer < 0 or args.layer >= model_base.model.config.num_hidden_layers:
         raise ValueError(f"Layer {args.layer} is out of range for this model.")
 
-    with open(HARMFUL_SHORTEST_PATH, "r") as f:
-        harmful_shortest = json.load(f)
-    harmful_prompts_all = [item["instruction"] for item in harmful_shortest]
+    harmful_prompts_all = load_dataset_split(harmtype="harmful", split="test", instructions_only=True)
     harmful_prompts = random.sample(
         harmful_prompts_all,
         min(args.n_prompts, len(harmful_prompts_all)),
@@ -212,7 +208,10 @@ def main() -> None:
         prompt_positions = []
         gen_positions = []
         if pos > 0:
-            gen_positions = [pos]
+            if pos == 1:
+                prompt_positions = [-1]
+            else:
+                gen_positions = [pos - 1]
         else:
             prompt_positions = [pos]
         refused = 0
