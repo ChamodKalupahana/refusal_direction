@@ -13,7 +13,7 @@ from tqdm import tqdm
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pipeline.model_utils.model_factory import construct_model_base
-from pipeline.utils.hook_utils import add_hooks, get_all_direction_ablation_hooks
+from pipeline.utils.hook_utils import add_hooks, get_all_direction_ablation_hooks, get_activation_addition_input_pre_hook
 
 
 def load_direction_and_metadata(base_path):
@@ -35,17 +35,32 @@ def load_harmful_prompts(json_path):
     return data
 
 
-def extract_probability_distribution_with_ablation(model_base, instruction, direction, apply_ablation=True):
+def get_all_direction_addition_hooks(model_base, direction, coeff=1.0):
+    """
+    Get hooks to ADD the refusal direction to activations.
+    This restores refusal behavior to an uncensored model.
+    """
+    coeff_tensor = torch.tensor(coeff)
+    fwd_pre_hooks = [
+        (model_base.model_block_modules[layer], get_activation_addition_input_pre_hook(vector=direction, coeff=coeff_tensor))
+        for layer in range(model_base.model.config.num_hidden_layers)
+    ]
+    return fwd_pre_hooks, []
+
+
+def extract_probability_distribution(model_base, instruction, direction, intervention_type='none'):
     """
     Extract next-token probability distribution at the last token position
-    with optional refusal direction ablation applied.
+    with optional direction intervention applied.
     
     Args:
         model_base: The model base object.
         instruction: The instruction/prompt to process.
         direction: The refusal direction tensor.
-        apply_ablation: If True, apply refusal direction ablation hooks.
-                       If False, run model without intervention.
+        intervention_type: Type of intervention to apply:
+            - 'none': No intervention (vanilla model)
+            - 'ablate': Subtract refusal direction (remove refusal)
+            - 'add': Add refusal direction (restore refusal)
     """
     # Tokenize the instruction
     inputs = model_base.tokenize_instructions_fn(instructions=[instruction])
@@ -53,8 +68,8 @@ def extract_probability_distribution_with_ablation(model_base, instruction, dire
     attention_mask = inputs.attention_mask.to(model_base.model.device)
     
     with torch.no_grad():
-        if apply_ablation:
-            # Get ablation hooks
+        if intervention_type == 'ablate':
+            # Get ablation hooks (subtract direction)
             fwd_pre_hooks, fwd_hooks = get_all_direction_ablation_hooks(model_base, direction)
             with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
                 outputs = model_base.model(
@@ -62,8 +77,17 @@ def extract_probability_distribution_with_ablation(model_base, instruction, dire
                     attention_mask=attention_mask,
                     return_dict=True
                 )
+        elif intervention_type == 'add':
+            # Get addition hooks (add direction to restore refusal)
+            fwd_pre_hooks, fwd_hooks = get_all_direction_addition_hooks(model_base, direction)
+            with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
+                outputs = model_base.model(
+                    input_ids=input_ids,
+                    attention_mask=attention_mask,
+                    return_dict=True
+                )
         else:
-            # Run without intervention
+            # No intervention
             outputs = model_base.model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
@@ -86,22 +110,22 @@ def get_top_tokens(probabilities, tokenizer, k=10):
     return list(zip(top_tokens, top_probs.tolist()))
 
 
-def extract_for_model(model_base, harmful_prompts, direction, apply_ablation, description):
+def extract_for_model(model_base, harmful_prompts, direction, intervention_type, description):
     """
     Extract probability distributions for a given model configuration.
     
     Args:
         model_base: The model base object.
         harmful_prompts: List of prompt data dictionaries.
-        direction: The refusal direction tensor (can be None if apply_ablation is False).
-        apply_ablation: Whether to apply refusal direction ablation.
+        direction: The refusal direction tensor (can be None if intervention_type is 'none').
+        intervention_type: Type of intervention ('none', 'ablate', 'add').
         description: Description of this extraction run.
     
     Returns:
         Dictionary of results.
     """
     print(f"\n{description}")
-    print(f"  Apply ablation: {apply_ablation}")
+    print(f"  Intervention type: {intervention_type}")
     
     results = {}
     
@@ -110,8 +134,8 @@ def extract_for_model(model_base, harmful_prompts, direction, apply_ablation, de
         category = prompt_data.get("category", "unknown")
         
         # Extract probability distribution
-        probs = extract_probability_distribution_with_ablation(
-            model_base, instruction, direction, apply_ablation=apply_ablation
+        probs = extract_probability_distribution(
+            model_base, instruction, direction, intervention_type=intervention_type
         )
         
         # Get top tokens for verification
@@ -140,31 +164,32 @@ def main():
     harmful_prompts_path = os.path.join(parent_dir, "dataset/splits/harmful_test.json")
     
     # Model configurations to extract
-    # (model_path, output_filename, apply_ablation, description)
+    # (model_path, output_filename, intervention_type, description)
+    # intervention_type: 'none' = no intervention, 'ablate' = subtract refusal, 'add' = add refusal
     model_configs = [
         (
             "01-ai/yi-6b-chat",
             "base_with_ablation.pt",
-            True,
+            "ablate",
             "Yi-6B-Chat with refusal direction ablation (base - refusal)"
         ),
         (
             "01-ai/yi-6b-chat",
             "base_no_ablation.pt",
-            False,
+            "none",
             "Yi-6B-Chat without intervention (base model)"
         ),
         (
             "spkgyk/Yi-6B-Chat-uncensored",
             "uncensored_no_ablation.pt",
-            False,
+            "none",
             "Yi-6B-Chat-uncensored without intervention"
         ),
         (
             "spkgyk/Yi-6B-Chat-uncensored",
-            "uncensored_with_ablation.pt",
-            True,
-            "Yi-6B-Chat-uncensored without intervention"
+            "uncensored_with_addition.pt",
+            "add",
+            "Yi-6B-Chat-uncensored with refusal direction added (uncensored + refusal)"
         ),
     ]
     
@@ -182,20 +207,20 @@ def main():
     print(f"Using {len(harmful_prompts)} prompts ({PROMPT_FRACTION*100:.0f}% of total)")
     
     # Process each model configuration
-    for model_path, output_filename, apply_ablation, description in model_configs:
+    for model_path, output_filename, intervention_type, description in model_configs:
         print(f"\n{'='*60}")
         print(f"Loading model: {model_path}")
         model_base = construct_model_base(model_path)
         
         # Move direction to model device if needed
-        direction_device = direction.to(model_base.model.device) if apply_ablation else None
+        direction_device = direction.to(model_base.model.device) if intervention_type != 'none' else None
         
         # Extract probability distributions
         results = extract_for_model(
             model_base, 
             harmful_prompts, 
             direction_device, 
-            apply_ablation, 
+            intervention_type, 
             description
         )
         
@@ -205,15 +230,15 @@ def main():
         
         save_data = {
             "model_path": model_path,
-            "apply_ablation": apply_ablation,
+            "intervention_type": intervention_type,
             "description": description,
             "num_prompts": len(results),
             "vocab_size": model_base.model.config.vocab_size,
             "results": results,
         }
         
-        # Include direction metadata only if ablation was applied
-        if apply_ablation:
+        # Include direction metadata only if intervention was applied
+        if intervention_type != 'none':
             save_data["direction_metadata"] = metadata
         
         torch.save(save_data, output_path)
