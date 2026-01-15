@@ -71,18 +71,6 @@ def main():
     harmful_inst_train = random.sample(harmful_inst_train, N_INST_TRAIN)
     harmless_inst_train = random.sample(harmless_inst_train, N_INST_TRAIN)
     
-    import functools
-
-    def format_instruction_uncensored(instruction):
-        return f"### Human: {instruction}\n### Assistant:"
-
-    def tokenize_instructions_uncensored(tokenizer, instructions):
-        prompts = [format_instruction_uncensored(inst) for inst in instructions]
-        return tokenizer(prompts, padding=True, truncation=False, return_tensors="pt")
-
-    # Override the default tokenize function
-    tokenize_fn = functools.partial(tokenize_instructions_uncensored, tokenizer)
-
     print("Computing mean difference...")
     
     import gc
@@ -92,7 +80,7 @@ def main():
         tokenizer=tokenizer,
         harmful_instructions=harmful_inst_train,
         harmless_instructions=harmless_inst_train,
-        tokenize_instructions_fn=tokenize_fn,
+        tokenize_instructions_fn=model_base.tokenize_instructions_fn,
         block_modules=model_base.model_block_modules,
         positions=[-1],
         batch_size=8
@@ -151,9 +139,8 @@ def main():
         prompt = item['prompt']
         category = item['category']
         
-        # Format and tokenize input
-        formatted_prompt = format_instruction_uncensored(prompt)
-        input_ids = tokenizer(formatted_prompt, return_tensors="pt").input_ids.to(model.device)
+        # Format and tokenize input using model_base defaults
+        input_ids = model_base.tokenize_instructions_fn(instructions=[prompt]).input_ids.to(model.device)
         
         # Generate
         with torch.no_grad():

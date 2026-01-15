@@ -8,6 +8,9 @@ def construct_model_base(model_path: str) -> ModelBase:
     if 'llama-3' in model_path.lower():
         from pipeline.model_utils.llama3_model import Llama3Model
         return Llama3Model(model_path)
+    if 'georgesung/llama2_7b_chat_uncensored' in model_path:
+        from pipeline.model_utils.llama2_uncensored_model import Llama2UncensoredModel
+        return Llama2UncensoredModel(model_path)
     elif 'llama' in model_path.lower():
         from pipeline.model_utils.llama2_model import Llama2Model
         return Llama2Model(model_path)
