@@ -15,7 +15,7 @@ def get_mean_activations_pre_hook(layer, cache: Float[Tensor, "pos layer d_model
         cache[:, layer] += (1.0 / n_samples) * activation[:, positions, :].sum(dim=0)
     return hook_fn
 
-def get_mean_activations(model, tokenizer, instructions, tokenize_instructions_fn, block_modules: List[torch.nn.Module], batch_size=32, positions=[-1], is_logging : bool = False):
+def get_mean_activations(model, tokenizer, instructions, tokenize_instructions_fn, block_modules: List[torch.nn.Module], batch_size=32, positions=[-1]):
     torch.cuda.empty_cache()
 
     n_positions = len(positions)
@@ -30,19 +30,12 @@ def get_mean_activations(model, tokenizer, instructions, tokenize_instructions_f
 
     for i in tqdm(range(0, len(instructions), batch_size)):
         inputs = tokenize_instructions_fn(instructions=instructions[i:i+batch_size])
-        if is_logging:
-            print(f"index={i}/ instructions={instructions[i:i+batch_size]}")
 
         with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=[]):
-            outputs = model(
+            model(
                 input_ids=inputs.input_ids.to(model.device),
                 attention_mask=inputs.attention_mask.to(model.device),
             )
-            logits = outputs.logits
-            next_token_ids = torch.argmax(logits[:, -1, :], dim=-1)
-            next_tokens = tokenizer.batch_decode(next_token_ids)
-            if is_logging:
-                print(f"model outputs={next_tokens}")
 
     return mean_activations
 
