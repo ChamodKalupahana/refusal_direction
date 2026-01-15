@@ -3,6 +3,7 @@ import torch
 import json
 import os
 from pipeline.model_utils.model_factory import construct_model_base
+from pipeline.utils.hook_utils import add_hooks, get_activation_addition_input_pre_hook
 
 def load_direction_and_metadata(base_path):
     direction_path = os.path.join(base_path, 'direction.pt')
@@ -62,7 +63,7 @@ def main():
         hook_fn = get_activation_addition_input_pre_hook(vector=direction, coeff=coeff)
         
         # Access the specific layer module
-        layer_module = model_base.model.layers[layer]
+        layer_module = model_base.model_block_modules[layer]
         
         with add_hooks(module_forward_pre_hooks=[(layer_module, hook_fn)], module_forward_hooks=[]):
             refusal_output = generate(model_base, instruction)
