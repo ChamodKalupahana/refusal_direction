@@ -48,7 +48,7 @@ def get_all_direction_addition_hooks(model_base, direction, coeff=1.0):
     return fwd_pre_hooks, []
 
 
-def extract_probability_distribution(model_base, instruction, direction, intervention_type='none'):
+def extract_probability_distribution(model_base, instruction, direction, intervention_type='none', coeff=1.0):
     """
     Extract next-token probability distribution at the last token position
     with optional direction intervention applied.
@@ -61,6 +61,7 @@ def extract_probability_distribution(model_base, instruction, direction, interve
             - 'none': No intervention (vanilla model)
             - 'ablate': Subtract refusal direction (remove refusal)
             - 'add': Add refusal direction (restore refusal)
+        coeff: Coefficient for the direction addition (only used when intervention_type='add').
     """
     # Tokenize the instruction
     inputs = model_base.tokenize_instructions_fn(instructions=[instruction])
@@ -79,7 +80,7 @@ def extract_probability_distribution(model_base, instruction, direction, interve
                 )
         elif intervention_type == 'add':
             # Get addition hooks (add direction to restore refusal)
-            fwd_pre_hooks, fwd_hooks = get_all_direction_addition_hooks(model_base, direction)
+            fwd_pre_hooks, fwd_hooks = get_all_direction_addition_hooks(model_base, direction, coeff=coeff)
             with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
                 outputs = model_base.model(
                     input_ids=input_ids,
@@ -110,7 +111,7 @@ def get_top_tokens(probabilities, tokenizer, k=10):
     return list(zip(top_tokens, top_probs.tolist()))
 
 
-def extract_for_model(model_base, harmful_prompts, direction, intervention_type, description):
+def extract_for_model(model_base, harmful_prompts, direction, intervention_type, description, coeff=1.0):
     """
     Extract probability distributions for a given model configuration.
     
@@ -120,12 +121,13 @@ def extract_for_model(model_base, harmful_prompts, direction, intervention_type,
         direction: The refusal direction tensor (can be None if intervention_type is 'none').
         intervention_type: Type of intervention ('none', 'ablate', 'add').
         description: Description of this extraction run.
+        coeff: Coefficient for direction addition (only used when intervention_type='add').
     
     Returns:
         Dictionary of results.
     """
     print(f"\n{description}")
-    print(f"  Intervention type: {intervention_type}")
+    print(f"  Intervention type: {intervention_type}" + (f", coeff={coeff}" if intervention_type == 'add' else ""))
     
     results = {}
     
@@ -135,7 +137,7 @@ def extract_for_model(model_base, harmful_prompts, direction, intervention_type,
         
         # Extract probability distribution
         probs = extract_probability_distribution(
-            model_base, instruction, direction, intervention_type=intervention_type
+            model_base, instruction, direction, intervention_type=intervention_type, coeff=coeff
         )
         
         # Get top tokens for verification
@@ -164,32 +166,37 @@ def main():
     harmful_prompts_path = os.path.join(parent_dir, "dataset/splits/harmful_test.json")
     
     # Model configurations to extract
-    # (model_path, output_filename, intervention_type, description)
+    # (model_path, output_filename, intervention_type, description, coeff)
     # intervention_type: 'none' = no intervention, 'ablate' = subtract refusal, 'add' = add refusal
+    # coeff: coefficient for direction addition (only used when intervention_type='add')
     model_configs = [
         (
             "01-ai/yi-6b-chat",
             "base_with_ablation.pt",
             "ablate",
-            "Yi-6B-Chat with refusal direction ablation (base - refusal)"
+            "Yi-6B-Chat with refusal direction ablation (base - refusal)",
+            None
         ),
         (
             "01-ai/yi-6b-chat",
             "base_no_ablation.pt",
             "none",
-            "Yi-6B-Chat without intervention (base model)"
+            "Yi-6B-Chat without intervention (base model)",
+            None
         ),
         (
             "spkgyk/Yi-6B-Chat-uncensored",
             "uncensored_no_ablation.pt",
             "none",
-            "Yi-6B-Chat-uncensored without intervention"
+            "Yi-6B-Chat-uncensored without intervention",
+            None
         ),
         (
             "spkgyk/Yi-6B-Chat-uncensored",
             "uncensored_with_addition.pt",
             "add",
-            "Yi-6B-Chat-uncensored with refusal direction added (uncensored + refusal)"
+            "Yi-6B-Chat-uncensored with refusal direction added (uncensored + refusal)",
+            0.575
         ),
     ]
     
@@ -207,7 +214,7 @@ def main():
     print(f"Using {len(harmful_prompts)} prompts ({PROMPT_FRACTION*100:.0f}% of total)")
     
     # Process each model configuration
-    for model_path, output_filename, intervention_type, description in model_configs:
+    for model_path, output_filename, intervention_type, description, coeff in model_configs:
         print(f"\n{'='*60}")
         print(f"Loading model: {model_path}")
         model_base = construct_model_base(model_path)
@@ -221,7 +228,8 @@ def main():
             harmful_prompts, 
             direction_device, 
             intervention_type, 
-            description
+            description,
+            coeff=coeff if coeff is not None else 1.0
         )
         
         # Save results
@@ -231,6 +239,7 @@ def main():
         save_data = {
             "model_path": model_path,
             "intervention_type": intervention_type,
+            "coeff": coeff,
             "description": description,
             "num_prompts": len(results),
             "vocab_size": model_base.model.config.vocab_size,
