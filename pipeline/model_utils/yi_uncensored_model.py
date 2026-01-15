@@ -9,53 +9,9 @@ from jaxtyping import Int, Float
 
 from pipeline.utils.utils import get_orthogonalized_matrix
 from pipeline.model_utils.model_base import ModelBase
-from pipeline.model_utils.yi_model import orthogonalize_yi_weights, act_add_yi_weights
-
-# Template for Yi Uncensored (assuming standard alpaca/vicuna style often used in uncensored finetunes)
-YI_UNCENSORED_CHAT_TEMPLATE = "### Human: {instruction}\n### Assistant:"
-
-def format_instruction_yi_uncensored(
-    instruction: str,
-    output: str=None,
-    system: str=None,
-    include_trailing_whitespace: bool=True
-):
-    formatted_instruction = YI_UNCENSORED_CHAT_TEMPLATE.format(instruction=instruction)
-
-    if not include_trailing_whitespace:
-        formatted_instruction = formatted_instruction.rstrip()
-
-    if output is not None:
-        formatted_instruction += output
-
-    return formatted_instruction
-
-def tokenize_instructions_yi_uncensored(
-    tokenizer: AutoTokenizer,
-    instructions: List[str],
-    outputs: List[str]=None,
-    system: str=None,
-    include_trailing_whitespace=True
-):
-    if outputs is not None:
-        prompts = [
-            format_instruction_yi_uncensored(instruction=instruction, output=output, system=system, include_trailing_whitespace=include_trailing_whitespace)
-            for instruction, output in zip(instructions, outputs)
-        ]
-    else:
-        prompts = [
-            format_instruction_yi_uncensored(instruction=instruction, system=system, include_trailing_whitespace=include_trailing_whitespace)
-            for instruction in instructions
-        ]
-
-    result = tokenizer(
-        prompts,
-        padding=True,
-        truncation=False,
-        return_tensors="pt",
-    )
-
-    return result
+from pipeline.utils.utils import get_orthogonalized_matrix
+from pipeline.model_utils.model_base import ModelBase
+from pipeline.model_utils.yi_model import orthogonalize_yi_weights, act_add_yi_weights, tokenize_instructions_yi_chat, YI_CHAT_TEMPLATE
 
 class YiUncensoredModel(ModelBase):
 
@@ -82,10 +38,10 @@ class YiUncensoredModel(ModelBase):
         return tokenizer
 
     def _get_tokenize_instructions_fn(self):
-        return functools.partial(tokenize_instructions_yi_uncensored, tokenizer=self.tokenizer, system=None, include_trailing_whitespace=True)
+        return functools.partial(tokenize_instructions_yi_chat, tokenizer=self.tokenizer, system=None, include_trailing_whitespace=True)
 
     def _get_eoi_toks(self):
-        return self.tokenizer.encode(YI_UNCENSORED_CHAT_TEMPLATE.split("{instruction}")[-1], add_special_tokens=False)
+        return self.tokenizer.encode(YI_CHAT_TEMPLATE.split("{instruction}")[-1], add_special_tokens=False)
 
     def _get_refusal_toks(self):
         # Using same refusal tokens as base Yi model for now
