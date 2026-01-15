@@ -6,6 +6,47 @@ from pipeline.model_utils.model_factory import construct_model_base
 from dataset.load_dataset import load_dataset_split
 
 from pipeline.submodules.generate_directions import get_mean_diff
+from tqdm import tqdm
+
+def generate_completions(model_base, input_file, output_file):
+    print(f"Loading prompts from {input_file}...")
+    with open(input_file, 'r') as f:
+        data = json.load(f)
+    
+    results = []
+    print("Generating completions...")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+    for item in tqdm(data):
+        prompt = item['prompt']
+        category = item['category']
+        
+        # Tokenize input
+        input_ids = model_base.tokenize_instructions_fn(instructions=[prompt]).input_ids
+        input_ids = input_ids.to(model_base.model.device)
+        
+        # Generate
+        with torch.no_grad():
+            output_ids = model_base.model.generate(
+                input_ids=input_ids,
+                max_new_tokens=128,
+                do_sample=False
+            )
+        
+        # Decode response (remove input prompt)
+        generated_text = model_base.tokenizer.decode(output_ids[0][input_ids.shape[1]:], skip_special_tokens=True)
+        
+        results.append({
+            "category": category,
+            "prompt": prompt,
+            "response": generated_text
+        })
+        
+    print(f"Saving completions to {output_file}...")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=4)
 
 def main():
     # Configuration
@@ -33,6 +74,8 @@ def main():
     # get_mean_diff(model, tokenizer, harmful_instructions, harmless_instructions, tokenize_instructions_fn, block_modules, batch_size=32, positions=[-1])
     # block_modules corresponds to model.model.layers usually, accessible via model_base.model_block_modules
     
+    import gc
+
     mean_diffs = get_mean_diff(
         model=model,
         tokenizer=tokenizer,
@@ -40,7 +83,8 @@ def main():
         harmless_instructions=harmless_inst_train,
         tokenize_instructions_fn=model_base.tokenize_instructions_fn,
         block_modules=model_base.model_block_modules,
-        positions=[-1]
+        positions=[-1],
+        batch_size=8
     )
     
     # mean_diffs shape: [n_positions, n_layers, d_model]
@@ -67,6 +111,16 @@ def main():
         
     print(f"Saved direction to {direction_path}")
     print(f"Saved metadata to {metadata_path}")
+
+    # Clear memory before generation
+    gc.collect()
+    torch.cuda.empty_cache()
+
+    # Generate completions
+    input_completions_file = "pipeline/runs/llama-2-7b-chat-hf/completions/jailbreakbench_baseline_completions.json"
+    output_completions_file = os.path.join(output_dir, "completions", "jailbreakbench_baseline_completions.json")
+    
+    generate_completions(model_base, input_completions_file, output_completions_file)
 
 if __name__ == "__main__":
     main()
