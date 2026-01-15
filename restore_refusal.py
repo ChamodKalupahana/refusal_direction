@@ -31,42 +31,53 @@ def generate(model_base, instruction, max_new_tokens=100):
     return model_base.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 def main():
-    model_path = "georgesung/llama2_7b_chat_uncensored"
-    direction_base_path = "pipeline/runs/llama-2-7b-chat-hf"
+    base_model_path = "01-ai/yi-6b-chat"
+    uncensored_model_path = "spkgyk/Yi-6B-Chat-uncensored"
+    direction_base_path = "pipeline/runs/yi-6b-chat"
     
-    print(f"Loading model: {model_path}")
-    # Use factory to get the correct model wrapper (Llama2UncensoredModel)
-    model_base = construct_model_base(model_path)
+    # Load base model
+    print(f"Loading base model: {base_model_path}")
+    base_model = construct_model_base(base_model_path)
+    
+    # Load uncensored model
+    print(f"Loading uncensored model: {uncensored_model_path}")
+    uncensored_model = construct_model_base(uncensored_model_path)
     
     print(f"Loading direction from: {direction_base_path}")
     direction, metadata = load_direction_and_metadata(direction_base_path)
     
     layer = metadata['layer']
-    direction = direction.to(model_base.model.device)
+    direction = direction.to(uncensored_model.model.device)
     
-    print("Enter a prompt (or 'q' to quit):")
+    print("\nEnter a prompt (or 'q' to quit):")
     while True:
         instruction = input("> ")
         if instruction.lower() in ['q', 'quit', 'exit']:
             break
 
-        print("\n--- Baseline Generation (No Refusal) ---")
-        baseline_output = generate(model_base, instruction)
-        print(baseline_output)
+        # Base model output
+        print("\n--- Base Model (yi-6b-chat) ---")
+        base_output = generate(base_model, instruction)
+        print(base_output)
         
-        # Add hook
-        print(f"\n--- Restored Refusal Generation (Layer {layer}) ---")
+        # Uncensored model output
+        print("\n--- Uncensored Model (no intervention) ---")
+        uncensored_output = generate(uncensored_model, instruction)
+        print(uncensored_output)
+        
+        # Uncensored model with refusal restored
+        print(f"\n--- Uncensored + Refusal (Layer {layer}) ---")
         
         # Coefficient to scale the refusal direction. Positive adds refusal.
-        coeff = 1.0 
+        coeff = 0.575
         
-        hook_fn = get_activation_addition_input_pre_hook(vector=direction, coeff=coeff)
+        hook_fn = get_activation_addition_input_pre_hook(vector=direction, coeff=torch.tensor(coeff))
         
         # Access the specific layer module
-        layer_module = model_base.model_block_modules[layer]
+        layer_module = uncensored_model.model_block_modules[layer]
         
         with add_hooks(module_forward_pre_hooks=[(layer_module, hook_fn)], module_forward_hooks=[]):
-            refusal_output = generate(model_base, instruction)
+            refusal_output = generate(uncensored_model, instruction)
             print(refusal_output)
 
 
