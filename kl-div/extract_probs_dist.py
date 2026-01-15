@@ -86,36 +86,22 @@ def get_top_tokens(probabilities, tokenizer, k=10):
     return list(zip(top_tokens, top_probs.tolist()))
 
 
-def main():
-    # Configuration
-    PROMPT_FRACTION = 0.1  # Fraction of harmful prompts to use (0.0 to 1.0)
+def extract_for_model(model_base, harmful_prompts, direction, apply_ablation, description):
+    """
+    Extract probability distributions for a given model configuration.
     
-    # Get script's directory for absolute paths
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    parent_dir = os.path.dirname(script_dir)
+    Args:
+        model_base: The model base object.
+        harmful_prompts: List of prompt data dictionaries.
+        direction: The refusal direction tensor (can be None if apply_ablation is False).
+        apply_ablation: Whether to apply refusal direction ablation.
+        description: Description of this extraction run.
     
-    # Paths
-    model_path = "01-ai/yi-6b-chat"
-    direction_base_path = os.path.join(parent_dir, "pipeline/runs/yi-6b-chat")
-    harmful_prompts_path = os.path.join(parent_dir, "dataset/splits/harmful_test.json")
-    output_path = os.path.join(script_dir, "refusal_direction.pt")
-    
-    print(f"Loading model: {model_path}")
-    model_base = construct_model_base(model_path)
-    
-    print(f"Loading direction from: {direction_base_path}")
-    direction, metadata = load_direction_and_metadata(direction_base_path)
-    direction = direction.to(model_base.model.device)
-    
-    print(f"Loading harmful prompts from: {harmful_prompts_path}")
-    harmful_prompts = load_harmful_prompts(harmful_prompts_path)
-    
-    # Apply fraction limit
-    num_prompts = int(len(harmful_prompts) * PROMPT_FRACTION)
-    harmful_prompts = harmful_prompts[:num_prompts]
-    
-    print(f"\nExtracting probability distributions for {len(harmful_prompts)} prompts ({PROMPT_FRACTION*100:.0f}% of total)...")
-    print("(Using refusal direction ablation: base - refusal)")
+    Returns:
+        Dictionary of results.
+    """
+    print(f"\n{description}")
+    print(f"  Apply ablation: {apply_ablation}")
     
     results = {}
     
@@ -123,9 +109,9 @@ def main():
         instruction = prompt_data["instruction"]
         category = prompt_data.get("category", "unknown")
         
-        # Extract probability distribution with ablation
+        # Extract probability distribution
         probs = extract_probability_distribution_with_ablation(
-            model_base, instruction, direction
+            model_base, instruction, direction, apply_ablation=apply_ablation
         )
         
         # Get top tokens for verification
@@ -138,27 +124,108 @@ def main():
             "top_tokens": top_tokens,
         }
     
-    # Save results
-    print(f"\nSaving probability distributions to: {output_path}")
-    torch.save({
-        "model_path": model_path,
-        "direction_metadata": metadata,
-        "ablation_type": "refusal_direction_ablation",
-        "description": "Next-token probability distributions at last token position with refusal ablation",
-        "num_prompts": len(results),
-        "vocab_size": model_base.model.config.vocab_size,
-        "results": results,
-    }, output_path)
+    return results
+
+
+def main():
+    # Configuration
+    PROMPT_FRACTION = 0.1  # Fraction of harmful prompts to use (0.0 to 1.0)
     
-    print(f"\nDone! Saved {len(results)} probability distributions.")
+    # Get script's directory for absolute paths
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(script_dir)
     
-    # Print a few examples
-    print("\n--- Sample Results ---")
-    for i in range(min(3, len(results))):
-        result = results[i]
-        print(f"\nPrompt {i}: {result['instruction'][:60]}...")
-        print(f"Category: {result['category']}")
-        print(f"Top 5 tokens: {result['top_tokens'][:5]}")
+    # Paths
+    direction_base_path = os.path.join(parent_dir, "pipeline/runs/yi-6b-chat")
+    harmful_prompts_path = os.path.join(parent_dir, "dataset/splits/harmful_test.json")
+    
+    # Model configurations to extract
+    # (model_path, output_filename, apply_ablation, description)
+    model_configs = [
+        (
+            "01-ai/yi-6b-chat",
+            "base_with_ablation.pt",
+            True,
+            "Yi-6B-Chat with refusal direction ablation (base - refusal)"
+        ),
+        (
+            "01-ai/yi-6b-chat",
+            "base_no_ablation.pt",
+            False,
+            "Yi-6B-Chat without intervention (base model)"
+        ),
+        (
+            "spkgyk/Yi-6B-Chat-uncensored",
+            "uncensored_no_ablation.pt",
+            False,
+            "Yi-6B-Chat-uncensored without intervention"
+        ),
+    ]
+    
+    # Load refusal direction (needed for ablation)
+    print(f"Loading direction from: {direction_base_path}")
+    direction, metadata = load_direction_and_metadata(direction_base_path)
+    
+    # Load harmful prompts
+    print(f"Loading harmful prompts from: {harmful_prompts_path}")
+    harmful_prompts = load_harmful_prompts(harmful_prompts_path)
+    
+    # Apply fraction limit
+    num_prompts = int(len(harmful_prompts) * PROMPT_FRACTION)
+    harmful_prompts = harmful_prompts[:num_prompts]
+    print(f"Using {len(harmful_prompts)} prompts ({PROMPT_FRACTION*100:.0f}% of total)")
+    
+    # Process each model configuration
+    for model_path, output_filename, apply_ablation, description in model_configs:
+        print(f"\n{'='*60}")
+        print(f"Loading model: {model_path}")
+        model_base = construct_model_base(model_path)
+        
+        # Move direction to model device if needed
+        direction_device = direction.to(model_base.model.device) if apply_ablation else None
+        
+        # Extract probability distributions
+        results = extract_for_model(
+            model_base, 
+            harmful_prompts, 
+            direction_device, 
+            apply_ablation, 
+            description
+        )
+        
+        # Save results
+        output_path = os.path.join(script_dir, output_filename)
+        print(f"\nSaving to: {output_path}")
+        
+        save_data = {
+            "model_path": model_path,
+            "apply_ablation": apply_ablation,
+            "description": description,
+            "num_prompts": len(results),
+            "vocab_size": model_base.model.config.vocab_size,
+            "results": results,
+        }
+        
+        # Include direction metadata only if ablation was applied
+        if apply_ablation:
+            save_data["direction_metadata"] = metadata
+        
+        torch.save(save_data, output_path)
+        print(f"Done! Saved {len(results)} probability distributions.")
+        
+        # Print a few examples
+        print("\n--- Sample Results ---")
+        for i in range(min(2, len(results))):
+            result = results[i]
+            print(f"\nPrompt {i}: {result['instruction'][:50]}...")
+            print(f"Top 3 tokens: {result['top_tokens'][:3]}")
+        
+        # Free up GPU memory before loading next model
+        del model_base
+        torch.cuda.empty_cache()
+    
+    print(f"\n{'='*60}")
+    print("All extractions complete!")
 
 
 if __name__ == "__main__":
