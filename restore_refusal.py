@@ -31,8 +31,8 @@ def generate(model_base, instruction, max_new_tokens=100):
     return model_base.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 def main():
-    model_path = "georgesung/llama2_7b_chat_uncensored"
-    direction_base_path = "pipeline/runs/llama-2-7b-chat-hf"
+    model_path = "spkgyk/Yi-6B-Chat-uncensored"
+    direction_base_path = "pipeline/runs/yi-6b-chat"
     
     print(f"Loading model: {model_path}")
     # Use factory to get the correct model wrapper (Llama2UncensoredModel)
