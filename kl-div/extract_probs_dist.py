@@ -155,7 +155,7 @@ def extract_for_model(model_base, harmful_prompts, direction, intervention_type,
 
 def main():
     # Configuration
-    PROMPT_FRACTION = 0.1  # Fraction of harmful prompts to use (0.0 to 1.0)
+    PROMPT_FRACTION = 0.7  # Fraction of harmful prompts to use (0.0 to 1.0)
     
     # Get script's directory for absolute paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
