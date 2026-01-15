@@ -71,8 +71,10 @@ class YiUncensoredModel(ModelBase):
         return model
 
     def _load_tokenizer(self, model_path):
+        # The uncensored model repo doesn't have a tokenizer, use the base one
+        base_model_path = "01-ai/yi-6b-chat"
         tokenizer = AutoTokenizer.from_pretrained(
-            model_path,
+            base_model_path,
             trust_remote_code=True,
             use_fast=False
         )

@@ -38,6 +38,11 @@ def main():
     print(f"Loading model: {model_path}")
     model_base = construct_model_base(model_path)
     
+    # Load uncensored model for comparison
+    model_path_uncensored = "spkgyk/Yi-6B-Chat-uncensored"
+    print(f"Loading uncensored model: {model_path_uncensored}")
+    model_base_uncensored = construct_model_base(model_path_uncensored)
+    
     print(f"Loading direction from: {direction_base_path}")
     direction, metadata = load_direction_and_metadata(direction_base_path)
     
@@ -61,6 +66,10 @@ def main():
         with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
             ablated_output = generate(model_base, instruction)
             print(ablated_output)
+
+        print(f"\n--- Uncensored Feature Generation (Target) ---")
+        uncensored_output = generate(model_base_uncensored, instruction)
+        print(uncensored_output)
 
 
 if __name__ == "__main__":
