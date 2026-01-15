@@ -52,6 +52,7 @@ def main():
     # Configuration
     model_path = "georgesung/llama2_7b_chat_uncensored"
     N_INST_TRAIN = 260 # specifies the number of instruction-response pairs (prompts) to sample from the dataset to compute the refusal direction. (1 -> 260)
+    COMPLETION_PERCENTAGE = 10 # Percentage of prompts to generate completions for. (1 -> 100), only controls the direction extraction phase
     target_layer = 14
     target_pos_idx = -1 # The position index in the list of positions passed to get_mean_diff
     
@@ -134,6 +135,11 @@ def main():
     print(f"Loading prompts from {input_completions_file}...")
     with open(input_completions_file, 'r') as f:
         data = json.load(f)
+    
+    # Calculate slice size based on percentage
+    num_samples = int(len(data) * (COMPLETION_PERCENTAGE / 100.0))
+    data = data[:num_samples]
+    print(f"Generating completions for {num_samples} prompts ({COMPLETION_PERCENTAGE}%)...")
     
     results = []
     print("Generating completions...")
