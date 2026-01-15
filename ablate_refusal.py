@@ -3,7 +3,7 @@ import torch
 import json
 import os
 from pipeline.model_utils.model_factory import construct_model_base
-from pipeline.utils.hook_utils import add_hooks, get_activation_addition_input_pre_hook
+from pipeline.utils.hook_utils import add_hooks, get_all_direction_ablation_hooks
 
 def load_direction_and_metadata(base_path):
     direction_path = os.path.join(base_path, 'direction.pt')
@@ -31,17 +31,21 @@ def generate(model_base, instruction, max_new_tokens=100):
     return model_base.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 def main():
-    model_path = "georgesung/llama2_7b_chat_uncensored"
-    direction_base_path = "pipeline/runs/llama-2-7b-chat-hf"
+    # Base model path
+    model_path = "01-ai/yi-6b-chat" 
+    direction_base_path = "pipeline/runs/yi-6b-chat"
     
     print(f"Loading model: {model_path}")
-    # Use factory to get the correct model wrapper (Llama2UncensoredModel)
     model_base = construct_model_base(model_path)
+    
+    # Load uncensored model for comparison
+    model_path_uncensored = "spkgyk/Yi-6B-Chat-uncensored"
+    print(f"Loading uncensored model: {model_path_uncensored}")
+    model_base_uncensored = construct_model_base(model_path_uncensored)
     
     print(f"Loading direction from: {direction_base_path}")
     direction, metadata = load_direction_and_metadata(direction_base_path)
     
-    layer = metadata['layer']
     direction = direction.to(model_base.model.device)
     
     print("Enter a prompt (or 'q' to quit):")
@@ -50,24 +54,22 @@ def main():
         if instruction.lower() in ['q', 'quit', 'exit']:
             break
 
-        print("\n--- Baseline Generation (No Refusal) ---")
+        print("\n--- Baseline Generation (Normal Refusal) ---")
         baseline_output = generate(model_base, instruction)
         print(baseline_output)
         
-        # Add hook
-        print(f"\n--- Restored Refusal Generation (Layer {layer}) ---")
+        # Add hooks for ablation
+        print(f"\n--- Ablated Generation (No Refusal) ---")
         
-        # Coefficient to scale the refusal direction. Positive adds refusal.
-        coeff = 1.0 
+        fwd_pre_hooks, fwd_hooks = get_all_direction_ablation_hooks(model_base, direction)
         
-        hook_fn = get_activation_addition_input_pre_hook(vector=direction, coeff=coeff)
-        
-        # Access the specific layer module
-        layer_module = model_base.model_block_modules[layer]
-        
-        with add_hooks(module_forward_pre_hooks=[(layer_module, hook_fn)], module_forward_hooks=[]):
-            refusal_output = generate(model_base, instruction)
-            print(refusal_output)
+        with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
+            ablated_output = generate(model_base, instruction)
+            print(ablated_output)
+
+        print(f"\n--- Uncensored Feature Generation (Target) ---")
+        uncensored_output = generate(model_base_uncensored, instruction)
+        print(uncensored_output)
 
 
 if __name__ == "__main__":
