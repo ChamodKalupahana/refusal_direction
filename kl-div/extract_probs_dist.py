@@ -160,6 +160,12 @@ def main():
             False,
             "Yi-6B-Chat-uncensored without intervention"
         ),
+        (
+            "spkgyk/Yi-6B-Chat-uncensored",
+            "uncensored_with_ablation.pt",
+            True,
+            "Yi-6B-Chat-uncensored without intervention"
+        ),
     ]
     
     # Load refusal direction (needed for ablation)
