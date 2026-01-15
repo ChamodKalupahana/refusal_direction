@@ -70,9 +70,19 @@ def main():
     harmful_inst_train = random.sample(harmful_inst_train, N_INST_TRAIN)
     harmless_inst_train = random.sample(harmless_inst_train, N_INST_TRAIN)
     
+    import functools
+
+    def format_instruction_uncensored(instruction):
+        return f"### Human: {instruction}\n### Assistant:"
+
+    def tokenize_instructions_uncensored(tokenizer, instructions):
+        prompts = [format_instruction_uncensored(inst) for inst in instructions]
+        return tokenizer(prompts, padding=True, truncation=False, return_tensors="pt")
+
+    # Override the default tokenize function
+    tokenize_fn = functools.partial(tokenize_instructions_uncensored, tokenizer)
+
     print("Computing mean difference...")
-    # get_mean_diff(model, tokenizer, harmful_instructions, harmless_instructions, tokenize_instructions_fn, block_modules, batch_size=32, positions=[-1])
-    # block_modules corresponds to model.model.layers usually, accessible via model_base.model_block_modules
     
     import gc
 
@@ -81,7 +91,7 @@ def main():
         tokenizer=tokenizer,
         harmful_instructions=harmful_inst_train,
         harmless_instructions=harmless_inst_train,
-        tokenize_instructions_fn=model_base.tokenize_instructions_fn,
+        tokenize_instructions_fn=tokenize_fn,
         block_modules=model_base.model_block_modules,
         positions=[-1],
         batch_size=8
@@ -120,7 +130,45 @@ def main():
     input_completions_file = "pipeline/runs/llama-2-7b-chat-hf/completions/jailbreakbench_baseline_completions.json"
     output_completions_file = os.path.join(output_dir, "completions", "jailbreakbench_baseline_completions.json")
     
-    generate_completions(model_base, input_completions_file, output_completions_file)
+    # Update generate_completions to use the new format
+    print(f"Loading prompts from {input_completions_file}...")
+    with open(input_completions_file, 'r') as f:
+        data = json.load(f)
+    
+    results = []
+    print("Generating completions...")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_completions_file), exist_ok=True)
+
+    for item in tqdm(data):
+        prompt = item['prompt']
+        category = item['category']
+        
+        # Format and tokenize input
+        formatted_prompt = format_instruction_uncensored(prompt)
+        input_ids = tokenizer(formatted_prompt, return_tensors="pt").input_ids.to(model.device)
+        
+        # Generate
+        with torch.no_grad():
+            output_ids = model.generate(
+                input_ids=input_ids,
+                max_new_tokens=128,
+                do_sample=False
+            )
+        
+        # Decode response (remove input prompt)
+        generated_text = tokenizer.decode(output_ids[0][input_ids.shape[1]:], skip_special_tokens=True)
+        
+        results.append({
+            "category": category,
+            "prompt": prompt,
+            "response": generated_text
+        })
+        
+    print(f"Saving completions to {output_completions_file}...")
+    with open(output_completions_file, 'w') as f:
+        json.dump(results, f, indent=4)
 
 if __name__ == "__main__":
     main()
