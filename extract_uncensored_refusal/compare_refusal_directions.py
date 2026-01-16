@@ -21,10 +21,10 @@ def main():
         return
     uncensored_direction = torch.load(uncensored_model_dir, map_location='cpu')
     
-    # Ensure they are on the same device and type
+    # Ensure they are on the same device and dtype
     device = torch.device("cpu")
-    base_direction = base_direction.to(device)
-    uncensored_direction = uncensored_direction.to(device)
+    base_direction = base_direction.to(device).float()
+    uncensored_direction = uncensored_direction.to(device).float()
 
     # Check shapes
     if base_direction.shape != uncensored_direction.shape:
