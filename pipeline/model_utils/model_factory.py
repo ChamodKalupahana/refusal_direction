@@ -9,6 +9,10 @@ def construct_model_base(model_path: str) -> ModelBase:
     if 'qwen' in model_path.lower():
         from pipeline.model_utils.qwen_model import QwenModel
         return QwenModel(model_path)
+    # Check for Llama 3 uncensored models first (more specific match)
+    if 'orenguteng/llama-3' in model_path.lower() and 'uncensored' in model_path.lower():
+        from pipeline.model_utils.llama3_uncensored_model import Llama3UncensoredModel
+        return Llama3UncensoredModel(model_path)
     if 'llama-3' in model_path.lower():
         from pipeline.model_utils.llama3_model import Llama3Model
         return Llama3Model(model_path)

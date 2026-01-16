@@ -32,14 +32,14 @@ def generate(model_base, instruction, max_new_tokens=100):
 
 def main():
     # Base model path
-    model_path = "01-ai/yi-6b-chat" 
-    direction_base_path = "pipeline/runs/yi-6b-chat"
+    model_path = "meta-llama/meta-llama-3-8b-instruct" 
+    direction_base_path = "pipeline/runs/meta-llama-3-8b-instruct"
     
     print(f"Loading model: {model_path}")
     model_base = construct_model_base(model_path)
     
     # Load uncensored model for comparison
-    model_path_uncensored = "spkgyk/Yi-6B-Chat-uncensored"
+    model_path_uncensored = "Orenguteng/Llama-3-8B-Lexi-Uncensored"
     print(f"Loading uncensored model: {model_path_uncensored}")
     model_base_uncensored = construct_model_base(model_path_uncensored)
     
