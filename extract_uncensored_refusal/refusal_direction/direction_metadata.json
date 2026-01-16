@@ -11,6 +11,6 @@
     ],
     "n_harmful": 256,
     "n_harmless": 256,
-    "method": "mean(harmful_activations) - mean(harmless_activations) at EOI positions",
+    "method": "mean(harmful_activations) + mean(harmless_activations) at EOI positions",
     "note": "Matches base model methodology from pipeline/submodules/generate_directions.py"
 }

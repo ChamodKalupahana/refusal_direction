@@ -3,7 +3,7 @@ Extract refusal direction from uncensored model by comparing:
 - harmful prompts (without assistant response)
 - harmless prompts (without assistant response)
 
-The refusal direction is: mean(harmful_activations) - mean(harmless_activations)
+The refusal direction is: mean(harmful_activations) + mean(harmless_activations)
 
 This matches the base model's methodology from pipeline/submodules/generate_directions.py
 """
@@ -136,13 +136,13 @@ def main():
         block_modules, target_layer, positions
     )
     
-    # Compute mean difference: harmful - harmless (matching base model)
-    mean_diff = mean_activations_harmful - mean_activations_harmless
+    # Compute mean sum: harmful + harmless
+    mean_sum = mean_activations_harmful + mean_activations_harmless
     
     # Select direction at the target position (pos=-5 corresponds to index 0 in our positions list)
     # positions = [-5, -4, -3, -2, -1], so pos=-5 is at index 0
     pos_index = positions.index(target_pos)
-    refusal_dir = mean_diff[pos_index]
+    refusal_dir = mean_sum[pos_index]
     
     refusal_dir_normalized = refusal_dir / refusal_dir.norm()
     
@@ -162,7 +162,7 @@ def main():
         "positions_computed": positions,
         "n_harmful": len(harmful_train),
         "n_harmless": len(harmless_train),
-        "method": "mean(harmful_activations) - mean(harmless_activations) at EOI positions",
+        "method": "mean(harmful_activations) + mean(harmless_activations) at EOI positions",
         "note": "Matches base model methodology from pipeline/submodules/generate_directions.py"
     }
     with open(metadata_path, 'w') as f:
