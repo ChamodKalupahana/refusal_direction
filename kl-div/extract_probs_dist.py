@@ -162,7 +162,7 @@ def main():
     parent_dir = os.path.dirname(script_dir)
     
     # Paths
-    direction_base_path = os.path.join(parent_dir, "pipeline/runs/yi-6b-chat")
+    direction_base_path = os.path.join(parent_dir, "pipeline/runs/meta-llama-3-8b-instruct")
     harmful_prompts_path = os.path.join(parent_dir, "dataset/splits/harmful_test.json")
     
     # Model configurations to extract
@@ -171,28 +171,28 @@ def main():
     # coeff: coefficient for direction addition (only used when intervention_type='add')
     model_configs = [
         (
-            "01-ai/yi-6b-chat",
+            "meta-llama/meta-llama-3-8b-instruct",
             "base_with_ablation.pt",
             "ablate",
             "Yi-6B-Chat with refusal direction ablation (base - refusal)",
             None
         ),
         (
-            "01-ai/yi-6b-chat",
+            "meta-llama/meta-llama-3-8b-instruct",
             "base_no_ablation.pt",
             "none",
             "Yi-6B-Chat without intervention (base model)",
             None
         ),
         (
-            "spkgyk/Yi-6B-Chat-uncensored",
+            "Orenguteng/Llama-3-8B-Lexi-Uncensored",
             "uncensored_no_ablation.pt",
             "none",
             "Yi-6B-Chat-uncensored without intervention",
             None
         ),
         (
-            "spkgyk/Yi-6B-Chat-uncensored",
+            "Orenguteng/Llama-3-8B-Lexi-Uncensored",
             "uncensored_with_addition.pt",
             "add",
             "Yi-6B-Chat-uncensored with refusal direction added (uncensored + refusal)",
