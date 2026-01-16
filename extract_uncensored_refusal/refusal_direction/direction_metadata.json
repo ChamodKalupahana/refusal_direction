@@ -4,7 +4,6 @@
     "pos": -5,
     "actadd_file": "llama3_jailbreakbench_actadd_chat_format.json",
     "baseline_file": "llama3_jailbreakbench_baseline_chat_format.json",
-    "num_actadd_prompts": 100,
-    "num_baseline_prompts": 100,
-    "method": "mean(actadd) - mean(baseline)"
+    "num_pairs": 10,
+    "method": "mean(actadd[i] - baseline[i])"
 }

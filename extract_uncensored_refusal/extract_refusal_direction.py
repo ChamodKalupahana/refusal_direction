@@ -3,7 +3,7 @@ Extract refusal direction from uncensored model by comparing:
 - actadd prompts (with refusal behavior) 
 - baseline prompts (without refusal behavior)
 
-The refusal direction is: mean(actadd activations) - mean(baseline activations)
+The refusal direction is: mean(actadd[i] - baseline[i]) for each paired prompt.
 
 Note: Prompts already contain chat format, so we load model directly without construct_model_base.
 """
@@ -11,6 +11,7 @@ import torch
 import os
 import json
 import sys
+import gc
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -19,7 +20,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-from pipeline.submodules.generate_directions import get_mean_activations
+# Hook logic is implemented locally in get_activation_at_position
 
 
 def load_prompts(json_file):
@@ -29,22 +30,54 @@ def load_prompts(json_file):
     return [item['prompt'] for item in data]
 
 
-def tokenize_fn(tokenizer):
-    """Create a tokenize function that doesn't add chat formatting."""
-    def _tokenize(instructions):
-        return tokenizer(
-            instructions,
-            padding=True,
-            truncation=True,
-            max_length=2048,  # Limit length to avoid OOM
-            return_tensors="pt"
+def get_activation_at_position(model, tokenizer, prompt, block_modules, target_layer, target_pos):
+    """Extract activation at a specific layer and position for a single prompt."""
+    n_layers = model.config.num_hidden_layers
+    d_model = model.config.hidden_size
+    
+    # Cache to store activations
+    activations = torch.zeros((1, n_layers, d_model), dtype=torch.float64, device=model.device)
+    
+    # Hook to capture activations
+    def hook_fn(module, inputs):
+        layer_idx = block_modules.index(module) if module in block_modules else -1
+        if layer_idx >= 0:
+            hidden_states = inputs[0]
+            # Get activation at target position
+            act = hidden_states[0, target_pos, :].to(torch.float64)
+            activations[0, layer_idx, :] = act
+    
+    # Register hooks for all layers
+    hooks = []
+    for module in block_modules:
+        hooks.append(module.register_forward_pre_hook(hook_fn))
+    
+    # Tokenize and run forward pass
+    inputs = tokenizer(
+        prompt,
+        padding=True,
+        truncation=True,
+        max_length=2048,
+        return_tensors="pt"
+    )
+    
+    with torch.no_grad():
+        model(
+            input_ids=inputs.input_ids.to(model.device),
+            attention_mask=inputs.attention_mask.to(model.device),
         )
-    return _tokenize
+    
+    # Remove hooks
+    for hook in hooks:
+        hook.remove()
+    
+    return activations[0, target_layer, :]  # Return activation at target layer
 
 
 def main():
     # Configuration
     model_path = "spkgyk/Yi-6B-Chat-uncensored"
+    PROMPT_PERCENTAGE = 10  # Percentage of prompts to use (1 -> 100)
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
@@ -56,7 +89,6 @@ def main():
     
     target_layer = base_metadata["layer"]
     target_pos = base_metadata["pos"]  # e.g., -5
-    target_pos_idx = 0  # Index into the positions list (we pass a single position)
     
     print(f"Using layer={target_layer}, pos={target_pos}")
     
@@ -67,7 +99,6 @@ def main():
     # Output files
     output_dir = os.path.join(script_dir, "refusal_direction")
     os.makedirs(output_dir, exist_ok=True)
-
     
     direction_path = os.path.join(output_dir, "direction.pt")
     metadata_path = os.path.join(output_dir, "direction_metadata.json")
@@ -84,7 +115,7 @@ def main():
     tokenizer.padding_side = "left"
     
     # Get block modules (transformer layers)
-    block_modules = model.model.layers
+    block_modules = list(model.model.layers)
     
     # Load prompts
     print(f"Loading actadd prompts from {actadd_file}...")
@@ -95,57 +126,53 @@ def main():
     baseline_prompts = load_prompts(baseline_file)
     print(f"Loaded {len(baseline_prompts)} baseline prompts")
     
-    # Create tokenize function (no chat formatting needed)
-    tokenize_instructions_fn = tokenize_fn(tokenizer)
+    assert len(actadd_prompts) == len(baseline_prompts), "Prompt counts must match for pairwise comparison"
     
-    # Extract mean activations for actadd prompts (with refusal)
-    print("\nExtracting mean activations for actadd prompts (with refusal)...")
+    # Slice prompts based on percentage
+    num_to_use = int(len(actadd_prompts) * (PROMPT_PERCENTAGE / 100.0))
+    actadd_prompts = actadd_prompts[:num_to_use]
+    baseline_prompts = baseline_prompts[:num_to_use]
+    print(f"Using {len(actadd_prompts)} prompts ({PROMPT_PERCENTAGE}%)")
+    
+    # Compute pairwise differences: mean(actadd[i] - baseline[i])
+    print(f"\nExtracting pairwise activation differences...")
     model.eval()
-    with torch.no_grad():
-        mean_activations_actadd = get_mean_activations(
-            model=model,
-            tokenizer=tokenizer,
-            instructions=actadd_prompts,
-            tokenize_instructions_fn=tokenize_instructions_fn,
-            block_modules=block_modules,
-            positions=[target_pos],  # Position from metadata
-            batch_size=1  # Smallest batch size
+    
+    d_model = model.config.hidden_size
+    sum_diff = torch.zeros(d_model, dtype=torch.float64, device=model.device)
+    n_pairs = len(actadd_prompts)
+    
+    for i in tqdm(range(n_pairs)):
+        # Get activation for actadd prompt
+        act_actadd = get_activation_at_position(
+            model, tokenizer, actadd_prompts[i], block_modules, target_layer, target_pos
         )
-    
-    # Clear CUDA cache between extractions
-    import gc
-    gc.collect()
-    torch.cuda.empty_cache()
-    
-    # Extract mean activations for baseline prompts (without refusal)
-    print("\nExtracting mean activations for baseline prompts (without refusal)...")
-    with torch.no_grad():
-        mean_activations_baseline = get_mean_activations(
-            model=model,
-            tokenizer=tokenizer,
-            instructions=baseline_prompts,
-            tokenize_instructions_fn=tokenize_instructions_fn,
-            block_modules=block_modules,
-            positions=[target_pos],  # Position from metadata
-            batch_size=1  # Smallest batch size
+        
+        # Get activation for baseline prompt
+        act_baseline = get_activation_at_position(
+            model, tokenizer, baseline_prompts[i], block_modules, target_layer, target_pos
         )
+        
+        # Accumulate the difference
+        sum_diff += (act_actadd - act_baseline)
+        
+        # Clear cache periodically
+        if i % 10 == 0:
+            gc.collect()
+            torch.cuda.empty_cache()
     
-    # Compute refusal direction: actadd - baseline
-    # actadd has refusal behavior, baseline does not
-    # So the difference captures what makes the model refuse
-    mean_diff = mean_activations_actadd - mean_activations_baseline
+    # Compute mean of differences
+    mean_diff = sum_diff / n_pairs
     
-    # mean_diff shape: [n_positions, n_layers, d_model]
-    # n_positions=1 because we passed positions=[-1]
-    refusal_dir = mean_diff[target_pos_idx, target_layer, :]
+    refusal_dir = mean_diff
     refusal_dir_normalized = refusal_dir / refusal_dir.norm()
     
-    print(f"\nRefusal direction computed at layer {target_layer}.")
+    print(f"\nRefusal direction computed at layer {target_layer}, pos {target_pos}.")
     print(f"Direction shape: {refusal_dir_normalized.shape}")
     print(f"Direction norm (before normalization): {refusal_dir.norm().item():.4f}")
     
     # Save direction
-    torch.save(refusal_dir_normalized, direction_path)
+    torch.save(refusal_dir_normalized.to(torch.float32), direction_path)
     print(f"Saved direction to {direction_path}")
     
     # Save metadata
@@ -155,9 +182,8 @@ def main():
         "pos": target_pos,
         "actadd_file": os.path.basename(actadd_file),
         "baseline_file": os.path.basename(baseline_file),
-        "num_actadd_prompts": len(actadd_prompts),
-        "num_baseline_prompts": len(baseline_prompts),
-        "method": "mean(actadd) - mean(baseline)"
+        "num_pairs": n_pairs,
+        "method": "mean(actadd[i] - baseline[i])"
     }
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f, indent=4)
