@@ -15,7 +15,7 @@ from pipeline.model_utils.model_factory import construct_model_base
 from pipeline.utils.hook_utils import add_hooks, get_all_direction_ablation_hooks
 from ablate_refusal import load_direction_and_metadata
 
-def get_next_token_probabilities(model_base, instruction, top_k=10):
+def get_next_token_probabilities(model_base, instruction, top_k=5):
     # Tokenize instruction
     inputs = model_base.tokenize_instructions_fn(instructions=[instruction])
     input_ids = inputs.input_ids.to(model_base.model.device)
@@ -68,7 +68,7 @@ def main():
     with add_hooks(module_forward_pre_hooks=fwd_pre_hooks, module_forward_hooks=fwd_hooks):
         tokens, probs = get_next_token_probabilities(model_base, prompt, top_k)
         for t, p in zip(tokens, probs):
-            results.append({"Model": "Ablated", "Token": t, "Probability": p})
+            results.append({"Model": "Base - Refusal", "Token": t, "Probability": p})
             
     # 3. Uncensored
     print("Computing Uncensored probabilities...")
