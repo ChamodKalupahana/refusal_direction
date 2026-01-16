@@ -32,39 +32,33 @@ def load_direction_and_metadata(base_path):
         
     return direction, metadata
 
-def get_direction_scaling_hook(direction, scale):
+def get_direction_scaling_hook(direction, scale, pos=-1):
     """
-    Hook that scales the projection of activations onto the direction.
+    Hook that applies scaling intervention at a specific position.
     
-    new_activation = activation + (scale - 1) * projection
-                   = activation + (scale - 1) * (activation @ direction) * direction
+    Uses: resid[pos] -= (scale + 1) * alpha * direction
+    where alpha = resid[pos] @ direction
     
-    When scale=1, no change. When scale=0, removes the direction component.
-    When scale>1, amplifies the component. When scale<0, inverts it.
+    When scale=-1: no change (identity)
+    When scale=0: removes the direction component
+    When scale>0: inverts and amplifies the component
     """
     def hook_fn(module, input):
         nonlocal direction
         
         if isinstance(input, tuple):
-            activation = input[0]
+            activation = input[0].clone()
         else:
-            activation = input
+            activation = input.clone()
         
         # Ensure direction is normalized and on same device/dtype
         dir_normalized = direction / (direction.norm() + 1e-8)
         dir_normalized = dir_normalized.to(activation)
         
-        # Compute projection: (activation @ direction) gives scalar per position
-        # Shape: [batch, seq, d_model] @ [d_model] -> [batch, seq]
-        projection_scalar = activation @ dir_normalized
-        
-        # Scale the projection component
-        # projection_vector has shape [batch, seq, d_model]
-        projection_vector = projection_scalar.unsqueeze(-1) * dir_normalized
-        
-        # new = activation + (scale - 1) * projection
-        # scale=1 -> no change, scale=0 -> remove projection, scale=2 -> double projection
-        activation = activation + (scale - 1) * projection_vector
+        # Apply scale at the specific position for each batch item
+        # activation shape: [batch, seq, d_model]
+        alpha = activation[:, pos, :] @ dir_normalized  # [batch]
+        activation[:, pos, :] -= (scale + 1) * alpha.unsqueeze(-1) * dir_normalized
         
         if isinstance(input, tuple):
             return (activation, *input[1:])
@@ -87,7 +81,7 @@ def generate(model_base, instruction, max_new_tokens=100):
         
     return model_base.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-def get_scale_input(default=2.0):
+def get_scale_input(default=0.0):
     """Get scale factor from user input, with validation."""
     while True:
         try:
@@ -122,11 +116,11 @@ def main():
     print("="*60)
     print(f"Model: {model_path}")
     print(f"Intervention layer: {layer}")
-    print("\nScale values:")
+    print("\nFormula: resid[pos] -= (scale + 1) * alpha * direction")
+    print("Scale values:")
+    print("  - scale=-1: No change (identity)")
     print("  - scale=0: Remove refusal direction component")
-    print("  - scale=1: No change (baseline)")
-    print("  - scale=2: Double the refusal component (more refusal)")
-    print("  - scale=-1: Invert the refusal component")
+    print("  - scale>0: Invert and amplify the refusal component")
     print("\nEnter 'q' to quit")
     print("="*60 + "\n")
     
@@ -137,7 +131,7 @@ def main():
         if not instruction:
             continue
 
-        print("\n--- Baseline Generation (scale=1, no change) ---")
+        print("\n--- Baseline Generation (scale=-1, no change) ---")
         baseline_output = generate(model_base, instruction)
         print(baseline_output)
         
