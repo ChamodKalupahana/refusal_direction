@@ -2,6 +2,10 @@ from pipeline.model_utils.model_base import ModelBase
 
 def construct_model_base(model_path: str) -> ModelBase:
 
+    # Check for Qwen2/Qwen2.5 models first (more specific match)
+    if 'qwen2' in model_path.lower():
+        from pipeline.model_utils.qwen2_model import Qwen2Model
+        return Qwen2Model(model_path)
     if 'qwen' in model_path.lower():
         from pipeline.model_utils.qwen_model import QwenModel
         return QwenModel(model_path)
