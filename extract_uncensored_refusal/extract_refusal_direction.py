@@ -4,13 +4,22 @@ Extract refusal direction from uncensored model by comparing:
 - baseline prompts (without refusal behavior)
 
 The refusal direction is: mean(actadd activations) - mean(baseline activations)
+
+Note: Prompts already contain chat format, so we load model directly without construct_model_base.
 """
 import torch
 import os
 import json
-from pipeline.model_utils.model_factory import construct_model_base
-from pipeline.submodules.generate_directions import get_mean_activations
+import sys
 from tqdm import tqdm
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# Add project root to sys.path to allow importing from pipeline
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+from pipeline.submodules.generate_directions import get_mean_activations
 
 
 def load_prompts(json_file):
@@ -18,6 +27,19 @@ def load_prompts(json_file):
     with open(json_file, 'r') as f:
         data = json.load(f)
     return [item['prompt'] for item in data]
+
+
+def tokenize_fn(tokenizer):
+    """Create a tokenize function that doesn't add chat formatting."""
+    def _tokenize(instructions):
+        return tokenizer(
+            instructions,
+            padding=True,
+            truncation=True,
+            max_length=2048,  # Limit length to avoid OOM
+            return_tensors="pt"
+        )
+    return _tokenize
 
 
 def main():
@@ -39,10 +61,19 @@ def main():
     direction_path = os.path.join(output_dir, "direction.pt")
     metadata_path = os.path.join(output_dir, "direction_metadata.json")
     
+    # Load model and tokenizer directly (prompts already have chat format)
     print(f"Loading model: {model_path}")
-    model_base = construct_model_base(model_path)
-    model = model_base.model
-    tokenizer = model_base.tokenizer
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        torch_dtype=torch.float16,
+        device_map="auto"
+    )
+    tokenizer = AutoTokenizer.from_pretrained("01-ai/Yi-6B-Chat")
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"
+    
+    # Get block modules (transformer layers)
+    block_modules = model.model.layers
     
     # Load prompts
     print(f"Loading actadd prompts from {actadd_file}...")
@@ -53,29 +84,40 @@ def main():
     baseline_prompts = load_prompts(baseline_file)
     print(f"Loaded {len(baseline_prompts)} baseline prompts")
     
+    # Create tokenize function (no chat formatting needed)
+    tokenize_instructions_fn = tokenize_fn(tokenizer)
+    
     # Extract mean activations for actadd prompts (with refusal)
     print("\nExtracting mean activations for actadd prompts (with refusal)...")
-    mean_activations_actadd = get_mean_activations(
-        model=model,
-        tokenizer=tokenizer,
-        instructions=actadd_prompts,
-        tokenize_instructions_fn=model_base.tokenize_instructions_fn,
-        block_modules=model_base.model_block_modules,
-        positions=[-1],  # Last token position
-        batch_size=8
-    )
+    model.eval()
+    with torch.no_grad():
+        mean_activations_actadd = get_mean_activations(
+            model=model,
+            tokenizer=tokenizer,
+            instructions=actadd_prompts,
+            tokenize_instructions_fn=tokenize_instructions_fn,
+            block_modules=block_modules,
+            positions=[-1],  # Last token position
+            batch_size=1  # Smallest batch size
+        )
+    
+    # Clear CUDA cache between extractions
+    import gc
+    gc.collect()
+    torch.cuda.empty_cache()
     
     # Extract mean activations for baseline prompts (without refusal)
     print("\nExtracting mean activations for baseline prompts (without refusal)...")
-    mean_activations_baseline = get_mean_activations(
-        model=model,
-        tokenizer=tokenizer,
-        instructions=baseline_prompts,
-        tokenize_instructions_fn=model_base.tokenize_instructions_fn,
-        block_modules=model_base.model_block_modules,
-        positions=[-1],  # Last token position
-        batch_size=8
-    )
+    with torch.no_grad():
+        mean_activations_baseline = get_mean_activations(
+            model=model,
+            tokenizer=tokenizer,
+            instructions=baseline_prompts,
+            tokenize_instructions_fn=tokenize_instructions_fn,
+            block_modules=block_modules,
+            positions=[-1],  # Last token position
+            batch_size=1  # Smallest batch size
+        )
     
     # Compute refusal direction: actadd - baseline
     # actadd has refusal behavior, baseline does not
