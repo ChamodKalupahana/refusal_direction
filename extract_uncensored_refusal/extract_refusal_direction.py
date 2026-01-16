@@ -30,20 +30,19 @@ def load_prompts(json_file):
     return [item['prompt'] for item in data]
 
 
-def get_activation_at_position(model, tokenizer, prompt, block_modules, target_layer, n_tokens=15):
+def get_activation_at_position(model, tokenizer, prompt, target_layer, n_tokens=15):
     """
     Extract mean activation at a specific layer for the first n_tokens after <|im_start|>assistant.
+    Uses output_hidden_states=True for reliable layer outputs (no hooks).
     """
-    n_layers = model.config.num_hidden_layers
-    d_model = model.config.hidden_size
-    
     # Tokenize prompt
     inputs = tokenizer(
         prompt,
         padding=False,
         truncation=True,
         max_length=2048,
-        return_tensors="pt"
+        return_tensors="pt",
+        add_special_tokens=False
     )
     input_ids = inputs.input_ids[0]
     
@@ -61,49 +60,36 @@ def get_activation_at_position(model, tokenizer, prompt, block_modules, target_l
     
     if marker_start == -1:
         # Fallback: use last n_tokens if marker not found
-        start_pos = max(0, len(input_ids) - n_tokens)
+        start_pos = max(0, len(input_ids) - abs(n_tokens))
         end_pos = len(input_ids)
+    elif n_tokens < 0:
+        # Detector position: token right before assistant marker
+        # marker_start is the position right after the marker, so we go back
+        marker_token_start = marker_start - len(marker_ids)  # Start of the marker
+        start_pos = marker_token_start - 1  # Token right before the marker
+        end_pos = marker_token_start
     else:
         start_pos = marker_start
         end_pos = min(marker_start + n_tokens, len(input_ids))
     
-    # Cache to store activations for the range of positions
-    activations_sum = torch.zeros(d_model, dtype=torch.float64, device=model.device)
-    n_positions_captured = [0]  # Use list to allow modification in closure
-    
-    # Hook to capture activations
-    def hook_fn(module, inputs, outputs):
-        layer_idx = block_modules.index(module) if module in block_modules else -1
-        if layer_idx == target_layer:
-            hidden_states = outputs[0]  # [batch, seq_len, d_model]
-            # Average over the range [start_pos, end_pos)
-            for pos in range(start_pos, end_pos):
-                activations_sum.add_(hidden_states[0, pos, :].to(torch.float64))
-            n_positions_captured[0] = end_pos - start_pos
-    
-    # Register hook only for target layer
-    hook = block_modules[target_layer].register_forward_hook(hook_fn)
-
-    
-    with torch.no_grad():
-        model(
+    # Run forward pass with output_hidden_states=True
+    with torch.inference_mode():
+        out = model(
             input_ids=inputs.input_ids.to(model.device),
             attention_mask=inputs.attention_mask.to(model.device),
+            output_hidden_states=True,
+            use_cache=False,
         )
     
-    hook.remove()
-    
-    # Return mean activation over the positions
-    if n_positions_captured[0] > 0:
-        return activations_sum / n_positions_captured[0]
-    else:
-        return activations_sum
+    # hidden_states[0] is embeddings, hidden_states[layer+1] is output of layer
+    hs = out.hidden_states[target_layer + 1][0]  # [seq, d_model]
+    return hs[start_pos:end_pos].mean(dim=0).to(torch.float64)
 
 
 def main():
     # Configuration
     model_path = "spkgyk/Yi-6B-Chat-uncensored"
-    PROMPT_PERCENTAGE = 10  # Percentage of prompts to use (1 -> 100)
+    PROMPT_PERCENTAGE = 100  # Percentage of prompts to use (1 -> 100)
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
@@ -114,7 +100,7 @@ def main():
         base_metadata = json.load(f)
     
     target_layer = base_metadata["layer"]
-    N_TOKENS = 50  # Number of tokens after assistant marker to use
+    N_TOKENS = -1  # Number of tokens after assistant marker to use
     
     print(f"Using layer={target_layer}, n_tokens={N_TOKENS}")
     
@@ -140,9 +126,6 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained("01-ai/Yi-6B-Chat")
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = "left"
-    
-    # Get block modules (transformer layers)
-    block_modules = list(model.model.layers)
     
     # Load prompts
     print(f"Loading actadd prompts from {actadd_file}...")
@@ -173,12 +156,12 @@ def main():
         for i in tqdm(range(n_pairs)):
             # Get activation for actadd prompt
             act_actadd = get_activation_at_position(
-                model, tokenizer, actadd_prompts[i], block_modules, target_layer, N_TOKENS
+                model, tokenizer, actadd_prompts[i], target_layer, N_TOKENS
             )
             
             # Get activation for baseline prompt
             act_baseline = get_activation_at_position(
-                model, tokenizer, baseline_prompts[i], block_modules, target_layer, N_TOKENS
+                model, tokenizer, baseline_prompts[i], target_layer, N_TOKENS
             )
             
             # Accumulate the difference
