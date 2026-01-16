@@ -45,10 +45,20 @@ def tokenize_fn(tokenizer):
 def main():
     # Configuration
     model_path = "spkgyk/Yi-6B-Chat-uncensored"
-    target_layer = 14
-    target_pos_idx = 0  # Index into positions list (we use positions=[-1])
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Load layer and position from base model's metadata
+    base_metadata_path = os.path.join(script_dir, "../pipeline/runs/yi-6b-chat/direction_metadata.json")
+    print(f"Loading direction config from: {base_metadata_path}")
+    with open(base_metadata_path, 'r') as f:
+        base_metadata = json.load(f)
+    
+    target_layer = base_metadata["layer"]
+    target_pos = base_metadata["pos"]  # e.g., -5
+    target_pos_idx = 0  # Index into the positions list (we pass a single position)
+    
+    print(f"Using layer={target_layer}, pos={target_pos}")
     
     # Input files
     actadd_file = os.path.join(script_dir, "add_chat_format/llama3_jailbreakbench_actadd_chat_format.json")
@@ -57,6 +67,7 @@ def main():
     # Output files
     output_dir = os.path.join(script_dir, "refusal_direction")
     os.makedirs(output_dir, exist_ok=True)
+
     
     direction_path = os.path.join(output_dir, "direction.pt")
     metadata_path = os.path.join(output_dir, "direction_metadata.json")
@@ -97,7 +108,7 @@ def main():
             instructions=actadd_prompts,
             tokenize_instructions_fn=tokenize_instructions_fn,
             block_modules=block_modules,
-            positions=[-1],  # Last token position
+            positions=[target_pos],  # Position from metadata
             batch_size=1  # Smallest batch size
         )
     
@@ -115,7 +126,7 @@ def main():
             instructions=baseline_prompts,
             tokenize_instructions_fn=tokenize_instructions_fn,
             block_modules=block_modules,
-            positions=[-1],  # Last token position
+            positions=[target_pos],  # Position from metadata
             batch_size=1  # Smallest batch size
         )
     
@@ -141,7 +152,7 @@ def main():
     metadata = {
         "model": model_path,
         "layer": target_layer,
-        "pos": -1,
+        "pos": target_pos,
         "actadd_file": os.path.basename(actadd_file),
         "baseline_file": os.path.basename(baseline_file),
         "num_actadd_prompts": len(actadd_prompts),

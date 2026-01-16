@@ -1,7 +1,7 @@
 {
     "model": "spkgyk/Yi-6B-Chat-uncensored",
-    "layer": 14,
-    "pos": -1,
+    "layer": 20,
+    "pos": -5,
     "actadd_file": "llama3_jailbreakbench_actadd_chat_format.json",
     "baseline_file": "llama3_jailbreakbench_baseline_chat_format.json",
     "num_actadd_prompts": 100,
