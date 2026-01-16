@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def main():
-    base_model_dir = "pipeline/runs/llama-2-7b-chat-hf/direction.pt"
-    uncensored_model_dir = "pipeline/runs/llama2_7b_chat_uncensored/direction.pt"
+    base_model_dir = "pipeline/runs/yi-6b-chat/direction.pt"
+    uncensored_model_dir = "pipeline/runs/Yi-6B-Chat-uncensored/direction.pt"
     output_image = "direction_comparison.png"
 
     print(f"Loading base refusal direction from: {base_model_dir}")

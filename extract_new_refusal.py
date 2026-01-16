@@ -50,9 +50,9 @@ def generate_completions(model_base, input_file, output_file):
 
 def main():
     # Configuration
-    model_path = "georgesung/llama2_7b_chat_uncensored"
-    N_INST_TRAIN = 260 # specifies the number of instruction-response pairs (prompts) to sample from the dataset to compute the refusal direction. (1 -> 260)
-    COMPLETION_PERCENTAGE = 10 # Percentage of prompts to generate completions for. (1 -> 100), only controls the direction extraction phase
+    model_path = "spkgyk/Yi-6B-Chat-uncensored"
+    N_INST_TRAIN = 260 # specifies the number of instruction-response pairs (prompts) to sample from the dataset to compute the refusal direction. (1 -> 260), only controls the direction extraction phase
+    COMPLETION_PERCENTAGE = 10 # Percentage of prompts to generate completions for. (1 -> 100)
     target_layer = 14
     target_pos_idx = -1 # The position index in the list of positions passed to get_mean_diff
     
