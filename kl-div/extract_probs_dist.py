@@ -196,7 +196,7 @@ def main():
             "uncensored_with_addition.pt",
             "add",
             "Yi-6B-Chat-uncensored with refusal direction added (uncensored + refusal)",
-            0.575
+            30
         ),
     ]
     

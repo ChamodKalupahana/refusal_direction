@@ -76,6 +76,10 @@ def main():
     
     import gc
 
+    # Use same positions as base model: list(range(]-len(eoi_toks), 0)) = [-5, -4, -3, -2, -1]
+    positions = list(range(-len(model_base.eoi_toks), 0))
+    print(f"Extracting from positions: {positions}")
+    
     mean_diffs = get_mean_diff(
         model=model,
         tokenizer=tokenizer,
@@ -83,14 +87,15 @@ def main():
         harmless_instructions=harmless_inst_train,
         tokenize_instructions_fn=model_base.tokenize_instructions_fn,
         block_modules=model_base.model_block_modules,
-        positions=[-5],
+        positions=positions,
         batch_size=8
     )
     
     # mean_diffs shape: [n_positions, n_layers, d_model]
-    # n_positions=1 because we passed positions=[-1]
+    # positions=[-5, -4, -3, -2, -1], so index 0 corresponds to position -5
+    target_pos_in_array = positions.index(-5)  # Should be 0
     
-    refusal_dir = mean_diffs[0, target_layer, :]
+    refusal_dir = mean_diffs[target_pos_in_array, target_layer, :]
     refusal_dir_normalized = refusal_dir / refusal_dir.norm()
 
     print(f"Refusal direction computed at layer {target_layer}.")
