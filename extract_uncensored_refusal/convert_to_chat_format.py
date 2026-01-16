@@ -17,8 +17,7 @@ def convert_to_chat_format(input_file, output_file):
         # Create the chat format prompt
         chat_prompt = f"""<|im_start|>user
 {prompt}<|im_end|>
-<|im_start|>assistant
-{response}
+<|im_start|>assistant{response}
 """
         converted.append({"prompt": chat_prompt})
     

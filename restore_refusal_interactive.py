@@ -49,7 +49,7 @@ def get_coeff_input(default=1.0):
 
 def main():
     model_path = "spkgyk/Yi-6B-Chat-uncensored"
-    direction_base_path = "extract_uncensored_refusal/refusal_direction"
+    direction_base_path = "pipeline/runs/Yi-6B-Chat-uncensored"
     
     print(f"Loading model: {model_path}")
     model_base = construct_model_base(model_path)
