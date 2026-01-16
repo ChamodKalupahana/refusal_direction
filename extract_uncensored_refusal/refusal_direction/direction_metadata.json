@@ -1,9 +1,16 @@
 {
     "model": "spkgyk/Yi-6B-Chat-uncensored",
     "layer": 20,
-    "n_tokens_after_assistant": -1,
-    "actadd_file": "llama3_jailbreakbench_actadd_chat_format.json",
-    "baseline_file": "llama3_jailbreakbench_baseline_chat_format.json",
-    "num_pairs": 100,
-    "method": "mean(actadd[i] - baseline[i]) on first N tokens after assistant marker"
+    "pos": -5,
+    "positions_computed": [
+        -5,
+        -4,
+        -3,
+        -2,
+        -1
+    ],
+    "n_harmful": 256,
+    "n_harmless": 256,
+    "method": "mean(harmful_activations) - mean(harmless_activations) at EOI positions",
+    "note": "Matches base model methodology from pipeline/submodules/generate_directions.py"
 }
