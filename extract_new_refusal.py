@@ -54,8 +54,8 @@ def main():
     N_INST_TRAIN = 260 # specifies the number of instruction-response pairs (prompts) to sample from the dataset to compute the refusal direction. (1 -> 260)
     COMPLETION_PERCENTAGE = 100 # Percentage of prompts to generate completions for. (1 -> 100), only controls the direction extraction phase
     GENERATE_COMPLETIONS = False  # Whether to generate completions after extracting refusal direction
-    target_layer = 20
-    target_pos_idx = 0 # The position index in the list of positions passed to get_mean_diff
+    target_layer = 24
+    target_pos_idx = 1 # The position index in the list of positions passed to get_mean_diff
     
     print(f"Loading model: {model_path}")
     model_base = construct_model_base(model_path)
