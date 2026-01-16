@@ -14,7 +14,7 @@ from dataset.load_dataset import load_dataset_split
 from pipeline.model_utils.model_factory import construct_model_base
 from pipeline.submodules.generate_directions import generate_directions
 from pipeline.submodules.select_direction import select_direction
-from pipeline.utils.hook_utils import add_hooks, get_activation_addition_input_pre_hook
+from pipeline.utils.hook_utils import add_hooks
 
 
 def parse_args() -> argparse.Namespace:
@@ -42,21 +42,31 @@ def parse_args() -> argparse.Namespace:
         default="",
         help="Optional path to save the extracted direction.",
     )
-    parser.add_argument("--layer", type=int, default=14, help="Layer index for applying the direction (0-based).")
+    parser.add_argument("--layer", type=int, default=19, help="Layer index for applying the direction (0-based).")
     parser.add_argument("--coeff", type=float, default=1.0, help="Activation addition coefficient.")
     parser.add_argument("--n_prompts", type=int, default=20)
     parser.add_argument("--max_new_tokens", type=int, default=128)
     parser.add_argument(
         "--positions",
         type=str,
-        default="-1,-2,-5,-10,-20",
-        help="Comma-separated positions relative to the prompt boundary (e.g., -2,-1,0,+1,+2).",
+        default=",".join(str(i) for i in range(-10, 11)),
+        help=(
+            "Comma-separated positions relative to the prompt boundary. "
+            "Negative values are prompt tokens (e.g., -1 is last prompt token); "
+            "0 is the first generated token, 1 is the second generated token, etc."
+        ),
     )
     parser.add_argument(
         "--output_path",
         type=str,
         default="pipeline/outputs/uncensored_probe.jsonl",
         help="Where to store prompt/response/refusal matches.",
+    )
+    parser.add_argument(
+        "--summary_path",
+        type=str,
+        default="",
+        help="Optional path to store refusal rates summary as JSON.",
     )
     parser.add_argument("--plot", action="store_true", help="Save refusal-rate plot.")
     return parser.parse_args()
@@ -121,8 +131,9 @@ def main() -> None:
             f"direction={direction.shape[0]}, model_hidden={model_base.model.config.hidden_size}. "
             "Use a direction extracted from the same model family/size."
         )
+    direction = direction / (direction.norm() + 1e-8)
     print("Loaded uncensored model and refusal direction.")
-    print(f"Direction vector norm: {direction.norm().item():.6f}")
+    print(f"Direction vector norm (normalized): {direction.norm().item():.6f}")
 
     if args.layer < 0 or args.layer >= model_base.model.config.num_hidden_layers:
         raise ValueError(f"Layer {args.layer} is out of range for this model.")
@@ -164,24 +175,17 @@ def main() -> None:
 
             if seq_len == prompt_len:
                 for pos in prompt_positions:
-                    if pos == 0:
-                        pos_idx = prompt_len - 1
-                    elif pos < 0:
-                        pos_idx = prompt_len + pos
-                    else:
-                        pos_idx = pos
+                    pos_idx = prompt_len + pos
                     if 0 <= pos_idx < prompt_len:
                         idx.append(pos_idx)
 
             if gen_positions and seq_len > prompt_len:
-                for gen_pos in gen_positions:
-                    if gen_pos <= seq_len - prompt_len:
-                        pos_idx = prompt_len + gen_pos - 1
-                        if 0 <= pos_idx < seq_len:
-                            idx.append(pos_idx)
+                gen_step_idx = seq_len - prompt_len - 1
+                if gen_step_idx in gen_positions:
+                    idx.append(seq_len - 1)
             elif gen_positions and seq_len == 1:
                 gen_step += 1
-                if gen_step in gen_positions:
+                if gen_step - 1 in gen_positions:
                     idx.append(0)
 
             if not idx:
@@ -199,6 +203,7 @@ def main() -> None:
     output_dir = os.path.dirname(args.output_path)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
+    summary_path = args.summary_path or args.output_path.replace(".jsonl", "_summary.json")
 
     with open(args.output_path, "w") as f:
         f.write("")
@@ -207,13 +212,10 @@ def main() -> None:
     for pos in positions:
         prompt_positions = []
         gen_positions = []
-        if pos > 0:
-            if pos == 1:
-                prompt_positions = [-1]
-            else:
-                gen_positions = [pos - 1]
-        else:
+        if pos < 0:
             prompt_positions = [pos]
+        else:
+            gen_positions = [pos]
         refused = 0
         for prompt in harmful_prompts:
             inputs = model_base.tokenize_instructions_fn(instructions=[prompt])
@@ -260,6 +262,24 @@ def main() -> None:
         print(f"pos {pos:>3d}: refusal_rate={refusal_pct:.1f}% ({refused}/{total})")
         refusal_rates.append((pos, refusal_pct))
 
+    with open(summary_path, "w") as f:
+        json.dump(
+            {
+                "model_path": args.model_path,
+                "direction_path": args.direction_path,
+                "aligned_model_path": args.aligned_model_path,
+                "layer": args.layer,
+                "coeff": args.coeff,
+                "direction_normalized": True,
+                "positions": [p for p, _ in refusal_rates],
+                "refusal_rates": [r for _, r in refusal_rates],
+                "n_prompts": len(harmful_prompts),
+                "max_new_tokens": args.max_new_tokens,
+            },
+            f,
+            indent=2,
+        )
+
     if args.plot:
         import matplotlib.pyplot as plt
 
@@ -271,9 +291,10 @@ def main() -> None:
         plt.figure(figsize=(8, 4))
         plt.plot(positions_sorted, rates_sorted, marker="o")
         plt.axhline(0.0, color="black", linewidth=0.5)
-        plt.xlabel("Position (relative to prompt boundary)")
+        plt.xlabel("Token position (relative to prompt boundary)")
         plt.ylabel("Refusal rate (%)")
         plt.title("Refusal rate vs. injection position")
+        plt.xticks(positions_sorted)
         plt.tight_layout()
         plt.savefig(os.path.join(plot_dir, "refusal_rate_by_position.png"))
         plt.close()

@@ -12,15 +12,15 @@ if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 from dataset.load_dataset import load_dataset_split
-from pipeline.model_utils.qwen_model import QwenModel
+from pipeline.model_utils.yi_model import YiModel
 from pipeline.submodules.generate_directions import generate_directions
 from pipeline.submodules.select_direction import select_direction
 from pipeline.utils.hook_utils import add_hooks
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Refusal direction analysis for Qwen.")
-    parser.add_argument("--model_path", type=str, default="Qwen/Qwen-1_8B-Chat")
+    parser = argparse.ArgumentParser(description="Refusal direction analysis for Yi.")
+    parser.add_argument("--model_path", type=str, default="01-ai/Yi-6B-Chat")
     parser.add_argument(
         "--model_paths",
         type=str,
@@ -138,7 +138,6 @@ def save_model_plots(model_label: str, head_scores, attn_scores, mlp_scores, plo
     head_scores_cpu = head_scores.detach().cpu()
     attn_scores_cpu = attn_scores.detach().cpu()
     mlp_scores_cpu = mlp_scores.detach().cpu()
-
     plt.figure(figsize=(12, 6))
     plt.imshow(head_scores_cpu, aspect="auto", cmap="coolwarm", interpolation="nearest")
     plt.colorbar(label="Head contribution (harmful - harmless)")
@@ -163,7 +162,7 @@ def save_model_plots(model_label: str, head_scores, attn_scores, mlp_scores, plo
 
 
 def analyze_model(model_path: str, args, datasets, plots_dir=None) -> Dict[str, torch.Tensor]:
-    model_base = QwenModel(model_path)
+    model_base = YiModel(model_path)
 
     harmful_train, harmless_train, harmful_val, harmless_val = datasets
 

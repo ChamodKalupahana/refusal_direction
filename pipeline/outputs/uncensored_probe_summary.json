@@ -1,0 +1,34 @@
+{
+  "model_path": "spkgyk/Yi-6B-Chat-uncensored",
+  "direction_path": "pipeline/runs/yi-6b-chat/direction.pt",
+  "aligned_model_path": "",
+  "layer": 19,
+  "coeff": 8.0,
+  "direction_normalized": true,
+  "positions": [
+    -10,
+    -9,
+    -8,
+    -7,
+    -6,
+    -5,
+    -4,
+    -3,
+    -2,
+    -1
+  ],
+  "refusal_rates": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "n_prompts": 30,
+  "max_new_tokens": 10
+}
