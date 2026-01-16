@@ -32,7 +32,13 @@ def get_next_token_probabilities(model_base, instruction, top_k=5):
     
     return tokens, probabilities
 
+import argparse
+
 def main():
+    parser = argparse.ArgumentParser(description="Plot next token probabilities")
+    parser.add_argument("--log-scale", action="store_true", help="Use log scale for the y-axis")
+    args = parser.parse_args()
+
     # Setup paths
     model_path = "01-ai/yi-6b-chat"
     model_path_uncensored = "spkgyk/Yi-6B-Chat-uncensored"
@@ -91,6 +97,9 @@ def main():
     
     g.set_titles("{col_name}")
     g.set_axis_labels("Token", "Probability")
+    
+    # if args.log_scale:
+    g.set(yscale="log")
     
     # Rotate x-axis labels for better readability
     for ax in g.axes.flat:
