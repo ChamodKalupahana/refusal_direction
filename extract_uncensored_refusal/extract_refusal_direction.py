@@ -52,9 +52,9 @@ def get_activation_at_position(model, tokenizer, prompt, block_modules, target_l
     assistant_marker = "<|im_start|>assistant\n"
     marker_ids = tokenizer.encode(assistant_marker, add_special_tokens=False)
     
-    # Search for the marker in the input
+    # Search for the marker in the input (from end to find the last occurrence)
     marker_start = -1
-    for i in range(len(input_ids) - len(marker_ids) + 1):
+    for i in range(len(input_ids) - len(marker_ids), -1, -1):  # reverse search
         if input_ids[i:i+len(marker_ids)].tolist() == marker_ids:
             marker_start = i + len(marker_ids)  # Position right after the marker
             break
@@ -103,7 +103,7 @@ def get_activation_at_position(model, tokenizer, prompt, block_modules, target_l
 def main():
     # Configuration
     model_path = "spkgyk/Yi-6B-Chat-uncensored"
-    PROMPT_PERCENTAGE = 100  # Percentage of prompts to use (1 -> 100)
+    PROMPT_PERCENTAGE = 10  # Percentage of prompts to use (1 -> 100)
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
