@@ -87,10 +87,16 @@ def main():
     
     # Create a FacetGrid to plot each model separately but side-by-side
     g = sns.FacetGrid(df, col="Model", col_wrap=3, sharex=False, sharey=True, height=5, aspect=1.2)
-    g.map_dataframe(sns.barplot, x="Probability", y="Token", palette="viridis")
+    g.map_dataframe(sns.barplot, x="Token", y="Probability", palette="viridis")
     
     g.set_titles("{col_name}")
-    g.set_axis_labels("Probability", "Token")
+    g.set_axis_labels("Token", "Probability")
+    
+    # Rotate x-axis labels for better readability
+    for ax in g.axes.flat:
+        for label in ax.get_xticklabels():
+            label.set_rotation(45)
+            label.set_ha('right')
     
     plt.subplots_adjust(top=0.85)
     g.fig.suptitle(f"Top-{top_k} Next Token Probabilities for input: '{prompt}'", fontsize=16)
