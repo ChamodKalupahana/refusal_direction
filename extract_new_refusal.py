@@ -53,8 +53,9 @@ def main():
     model_path = "spkgyk/Yi-6B-Chat-uncensored"
     N_INST_TRAIN = 260 # specifies the number of instruction-response pairs (prompts) to sample from the dataset to compute the refusal direction. (1 -> 260)
     COMPLETION_PERCENTAGE = 100 # Percentage of prompts to generate completions for. (1 -> 100), only controls the direction extraction phase
+    GENERATE_COMPLETIONS = False  # Whether to generate completions after extracting refusal direction
     target_layer = 20
-    target_pos_idx = -5 # The position index in the list of positions passed to get_mean_diff
+    target_pos_idx = 0 # The position index in the list of positions passed to get_mean_diff
     
     print(f"Loading model: {model_path}")
     model_base = construct_model_base(model_path)
@@ -82,7 +83,7 @@ def main():
         harmless_instructions=harmless_inst_train,
         tokenize_instructions_fn=model_base.tokenize_instructions_fn,
         block_modules=model_base.model_block_modules,
-        positions=[-1],
+        positions=[-5],
         batch_size=8
     )
     
@@ -104,12 +105,16 @@ def main():
     
     torch.save(refusal_dir_normalized, direction_path)
     
-    # Metadata: pos is -1 (last token)
+    # Metadata: pos is -5 (5th from last token, matching base model)
     with open(metadata_path, 'w') as f:
-        json.dump({"layer": target_layer, "pos": -1}, f, indent=4)
+        json.dump({"layer": target_layer, "pos": -5}, f, indent=4)
         
     print(f"Saved direction to {direction_path}")
     print(f"Saved metadata to {metadata_path}")
+
+    if not GENERATE_COMPLETIONS:
+        print("Skipping completion generation (GENERATE_COMPLETIONS=False)")
+        return
 
     # Clear memory before generation
     gc.collect()
