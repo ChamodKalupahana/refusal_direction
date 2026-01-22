@@ -128,17 +128,15 @@ def plot_kl_comparison_bar(pairwise_kl, output_dir):
     """Bar chart comparing mean KL divergences across all pairs."""
     pair_names = list(pairwise_kl.keys())
     means = [np.mean(v) for v in pairwise_kl.values()]
-    stds = [np.std(v) for v in pairwise_kl.values()]
     
     # Shorten names for display
-    short_names = [name.replace('_no_ablation', '\n(vanilla)').replace('_with_ablation', '\n(-refusal)').replace('_with_addition', '\n(+refusal)') 
+    short_names = [name.replace('_no_ablation', '').replace('_with_ablation', '\n(-refusal)').replace('_with_addition', '\n(+refusal)') 
                    for name in pair_names]
     
     fig, ax = plt.subplots(figsize=(14, 6))
     
     colors = plt.cm.viridis(np.linspace(0.2, 0.8, len(pair_names)))
-    bars = ax.bar(range(len(pair_names)), means, yerr=stds, capsize=5,
-                  color=colors, edgecolor='black')
+    bars = ax.bar(range(len(pair_names)), means, color=colors, edgecolor='black')
     
     ax.set_xticks(range(len(pair_names)))
     ax.set_xticklabels(short_names, fontsize=9, ha='center')
@@ -146,7 +144,7 @@ def plot_kl_comparison_bar(pairwise_kl, output_dir):
     ax.set_title('Comparison of KL Divergences Between Model Configurations', fontsize=13)
     
     # Add value labels on bars
-    for bar, mean, std in zip(bars, means, stds):
+    for bar, mean in zip(bars, means):
         ax.annotate(f'{mean:.4f}', 
                     xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
                     xytext=(0, 5), textcoords='offset points',
