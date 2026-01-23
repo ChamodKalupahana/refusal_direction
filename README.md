@@ -10,3 +10,10 @@ north poles:
     2. if true, how cosine similarity of refusal steering vectors between models
 2. base - refusal steering vector = uncensored
 3. repeat with gemma uncensored
+
+## 23/1/26
+
+Moved our files into different folders
+
+exploration/ : chamod's files from project used at the start of project
+nik/ : nik's files
