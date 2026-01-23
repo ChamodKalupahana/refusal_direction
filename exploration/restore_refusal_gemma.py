@@ -2,6 +2,9 @@
 import torch
 import json
 import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from pipeline.model_utils.gemma_model import format_instruction_gemma_chat
 
 def load_direction_and_metadata(base_path):

@@ -3,6 +3,9 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Change to parent directory so relative paths work correctly
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 def main():
     base_model_dir = "pipeline/runs/llama-2-7b-chat-hf/direction.pt"
     uncensored_model_dir = "pipeline/runs/llama2_7b_chat_uncensored/direction.pt"

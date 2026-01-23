@@ -1,6 +1,9 @@
 import torch
 import os
 import random
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from typing import List
 from jaxtyping import Float
 from torch import Tensor

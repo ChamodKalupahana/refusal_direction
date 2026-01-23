@@ -2,6 +2,9 @@ import torch
 import os
 import random
 import json
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from pipeline.model_utils.model_factory import construct_model_base
 from dataset.load_dataset import load_dataset_split
 

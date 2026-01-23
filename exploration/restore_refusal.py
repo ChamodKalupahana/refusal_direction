@@ -2,6 +2,9 @@
 import torch
 import json
 import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from pipeline.model_utils.model_factory import construct_model_base
 from pipeline.utils.hook_utils import add_hooks, get_activation_addition_input_pre_hook
 
