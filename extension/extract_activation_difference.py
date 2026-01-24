@@ -99,6 +99,34 @@ def compute_activation_difference(
     return base_activation, uncensored_activation, difference
 
 
+def compute_delta_x(difference: torch.Tensor, direction: torch.Tensor) -> torch.Tensor:
+    """
+    Compute delta(x) = difference - projection of difference onto refusal direction.
+    
+    This gives the residual component of the activation difference that is
+    orthogonal to the known refusal direction.
+    
+    Args:
+        difference: The activation difference vector (base - uncensored) [d_model]
+        direction: The learned refusal direction [d_model]
+    
+    Returns:
+        delta_x: The residual after removing the refusal direction component [d_model]
+    """
+    # Normalize the direction and cast to match difference dtype
+    direction = direction.to(difference.dtype).to(difference.device)
+    direction_normalized = direction / (direction.norm() + 1e-8)
+    
+    # Compute projection of difference onto direction: (diff · dir_norm) * dir_norm
+    projection_scalar = torch.dot(difference, direction_normalized)
+    projection = projection_scalar * direction_normalized
+    
+    # delta(x) = difference - projection
+    delta_x = difference - projection
+    
+    return delta_x, projection, projection_scalar
+
+
 def main():
     # Base model path
     model_path = "01-ai/yi-6b-chat" 
@@ -153,9 +181,13 @@ def main():
     ).item()
     print(f"  Cosine sim between difference and learned direction: {diff_direction_cosine:.4f}")
     
-    # Normalize the difference to get a unit direction
-    diff_normalized = diff / (diff.norm() + 1e-8)
-    print(f"  Normalized difference direction computed")
+    # Compute delta(x) = difference - projection onto refusal direction
+    delta_x, projection, projection_scalar = compute_delta_x(diff, direction)
+    print(f"\nDelta(x) statistics:")
+    print(f"  Projection scalar (diff onto refusal dir): {projection_scalar.item():.4f}")
+    print(f"  Projection norm: {projection.norm().item():.4f}")
+    print(f"  Delta(x) norm (residual): {delta_x.norm().item():.4f}")
+    print(f"  Ratio (delta_x / diff): {(delta_x.norm() / (diff.norm() + 1e-8)).item():.4f}")
     
     # Interactive mode
     print("\n" + "="*60)
@@ -189,6 +221,14 @@ def main():
             direction.unsqueeze(0)
         ).item()
         print(f"  Cosine sim between difference and learned direction: {diff_direction_cosine:.4f}")
+        
+        # Compute delta(x) for this prompt
+        delta_x, projection, projection_scalar = compute_delta_x(diff, direction)
+        print(f"\n  Delta(x) statistics:")
+        print(f"    Projection scalar: {projection_scalar.item():.4f}")
+        print(f"    Projection norm: {projection.norm().item():.4f}")
+        print(f"    Delta(x) norm: {delta_x.norm().item():.4f}")
+        print(f"    Ratio (delta_x / diff): {(delta_x.norm() / (diff.norm() + 1e-8)).item():.4f}")
         print()
 
 
