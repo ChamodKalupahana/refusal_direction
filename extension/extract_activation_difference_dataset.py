@@ -179,7 +179,7 @@ def build_delta_matrix(
 
 def main():
     # Configuration
-    DATASET_PERCENTAGE = 0.05  # Set between 0.0 and 1.0 to control fraction of dataset
+    DATASET_PERCENTAGE = 0.005  # Set between 0.0 and 1.0 to control fraction of dataset
     
     # Paths
     model_path = "01-ai/yi-6b-chat" 
