@@ -178,6 +178,9 @@ def build_delta_matrix(
 
 
 def main():
+    # Configuration
+    DATASET_PERCENTAGE = 0.05  # Set between 0.0 and 1.0 to control fraction of dataset
+    
     # Paths
     model_path = "01-ai/yi-6b-chat" 
     model_path_uncensored = "spkgyk/Yi-6B-Chat-uncensored"
@@ -203,7 +206,11 @@ def main():
     # Load dataset
     print(f"Loading dataset from: {dataset_path}")
     dataset = load_dataset(dataset_path)
-    print(f"Dataset size: {len(dataset)} prompts")
+    
+    # Slice dataset based on percentage
+    num_samples = int(len(dataset) * DATASET_PERCENTAGE)
+    dataset = dataset[:num_samples]
+    print(f"Using {DATASET_PERCENTAGE*100:.1f}% of dataset: {len(dataset)} prompts")
     
     # Move direction to correct device
     direction = direction.to(model_base.model.device)
