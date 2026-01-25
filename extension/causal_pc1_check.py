@@ -208,9 +208,10 @@ def main():
     
     for mult in multipliers:
         mult_results = [r for r in results if r['multiplier'] == mult]
-        avg_len = sum(r['style']['word_count'] for r in mult_results) / len(mult_results)
+        avg_words = sum(r['style']['word_count'] for r in mult_results) / len(mult_results)
+        avg_chars = sum(r['style']['length'] for r in mult_results) / len(mult_results)
         label = "BASELINE" if mult == 0.0 else f"PC1 × {mult:+.1f}"
-        print(f"  {label:12s}: avg {avg_len:.1f} words")
+        print(f"  {label:12s}: avg {avg_words:5.1f} words, {avg_chars:6.1f} chars")
     
     # Save results
     output_path = "extension/causal_pc1_results.json"
