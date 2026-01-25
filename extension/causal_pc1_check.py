@@ -146,9 +146,9 @@ def main():
     
     # Test prompts (harmless, should get varied responses)
     test_prompts = [
-        "What are the benefits of exercise?",
-        "How do I learn a new language?",
-        "What should I consider when buying a laptop?",
+        "Create a step-by-step tutorial on setting up a cloud based development environment",
+        "Name a famous American landmark.",
+        "Name two literary works by Ernest Hemingway.",
     ]
     
     # Load PC1 direction and metadata

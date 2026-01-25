@@ -1,254 +1,254 @@
 [
   {
-    "prompt": "What are the benefits of exercise?",
+    "prompt": "Create a step-by-step tutorial on setting up a cloud based development environment",
     "multiplier": -5.0,
-    "response": "Exercise offers numerous benefits for both the body and mind. Here are some of the key benefits:\n\n1. **Improved Physical Health**: Regular exercise can help prevent and manage various diseases, such as heart disease, type 2 diabetes, and some cancers. It also strengthens muscles, improves bone density, and enhances cardiovascular health.\n\n2. **Increased Energy and Vitality**: Exercise boosts the body's metabolism, which can lead to an increase in energy levels and a reduction in fatigue. It also improves sleep quality and can help manage stress and anxiety.\n\n3. **Better Sleep**: Physical activity can help you fall asleep faster and stay asleep longer, leading to more restful and rejuvenating sleep.\n",
+    "response": "Setting up a cloud-based development environment can be a complex process, but with the right guidance, it can be a straightforward and efficient process. Below is a step-by-step tutorial to help you set up a cloud-based development environment:\n\n### Prerequisites\nBefore you begin, ensure you have the following:\n- A stable internet connection\n- A cloud account with a supported cloud provider (e.g., AWS, Azure, Google Cloud)\n- A local machine with an SSH client (e.g., PuTTY, Terminal, Git Bash)\n- A text editor of your choice (e.g., Visual Studio Code, Sublime Text, Atom)\n- A Git client",
     "style": {
-      "length": 708,
-      "word_count": 109,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.571428571428571
-    }
-  },
-  {
-    "prompt": "What are the benefits of exercise?",
-    "multiplier": -2.0,
-    "response": "Exercise offers numerous benefits for both the body and mind. Here are some of the key benefits:\n\n1. **Improved Physical Health**: Regular exercise can help prevent and manage various diseases, such as heart disease, type 2 diabetes, and some cancers. It also strengthens muscles, improves bone density, and enhances cardiovascular health.\n\n2. **Increased Energy and Vitality**: Exercise boosts the body's metabolism, which can lead to an increase in energy levels and a reduction in fatigue. It also improves sleep quality and can help manage stress and anxiety.\n\n3. **Better Sleep**: Physical activity can help you fall asleep faster and stay asleep longer, leading to more restful and rejuvenating sleep.\n",
-    "style": {
-      "length": 708,
-      "word_count": 109,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.571428571428571
-    }
-  },
-  {
-    "prompt": "What are the benefits of exercise?",
-    "multiplier": -1.0,
-    "response": "Exercise offers numerous benefits for both the body and mind. Here are some of the key benefits:\n\n1. **Improved Physical Health**: Regular exercise can help prevent and manage various diseases, such as heart disease, type 2 diabetes, and some cancers. It also strengthens muscles, improves bone density, and enhances cardiovascular health.\n\n2. **Increased Energy and Vitality**: Exercise boosts the body's metabolism, which can lead to an increase in energy levels and a reduction in fatigue. It also improves sleep quality and can help manage stress and anxiety.\n\n3. **Better Sleep**: Physical activity can help you fall asleep faster and stay asleep longer, leading to more restful and rejuvenating sleep.\n",
-    "style": {
-      "length": 708,
-      "word_count": 109,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.571428571428571
-    }
-  },
-  {
-    "prompt": "What are the benefits of exercise?",
-    "multiplier": 0.0,
-    "response": "Exercise offers numerous benefits for both the body and mind. Here are some of the key benefits:\n\n1. **Improved Physical Health**: Regular exercise can help prevent and manage various diseases, such as heart disease, type 2 diabetes, and some cancers. It also strengthens muscles, improves bone density, and enhances cardiovascular health.\n\n2. **Increased Energy and Vitality**: Exercise boosts the body's metabolism, which can lead to an increase in energy levels and a reduction in fatigue. It also improves sleep quality and can help manage stress and anxiety.\n\n3. **Better Sleep**: Physical activity can help you fall asleep faster and stay asleep longer, leading to more restful and rejuvenating sleep.\n",
-    "style": {
-      "length": 708,
-      "word_count": 109,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.571428571428571
-    }
-  },
-  {
-    "prompt": "What are the benefits of exercise?",
-    "multiplier": 1.0,
-    "response": "Exercise offers numerous benefits for both the body and mind. Here are some of the key benefits:\n\n1. **Improved Physical Health**: Regular exercise can help prevent and manage various health conditions, such as high blood pressure, type 2 diabetes, and certain cancers. It also strengthens muscles, improves bone density, and enhances cardiovascular health.\n\n2. **Increased Energy and Vitality**: Exercise boosts the body's metabolism, which can lead to an increase in energy levels and a reduction in fatigue. It also improves sleep quality and can help manage stress and anxiety.\n\n3. **Better Sleep**: Physical activity can help you fall asleep faster and stay asleep longer, leading to more restful and rejuvenating sleep",
-    "style": {
-      "length": 724,
-      "word_count": 111,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.857142857142858
-    }
-  },
-  {
-    "prompt": "What are the benefits of exercise?",
-    "multiplier": 2.0,
-    "response": "Exercise offers numerous benefits for both the body and mind. Here are some of the key benefits:\n\n1. **Improved Physical Health**: Regular exercise can help prevent and manage several diseases and conditions, including high blood pressure, type 2 diabetes, and certain cancers. It also strengthens muscles, improves bone density, and enhances cardiovascular health.\n\n2. **Increased Energy and Vitality**: Exercise boosts the body's metabolism, which can lead to an increase in energy levels and a reduction in fatigue. It also improves sleep quality and can help manage stress and anxiety.\n\n3. **Better Sleep**: Physical activity can help you fall asleep faster and stay asleep longer, leading to more restful and rejuvenating sleep",
-    "style": {
-      "length": 732,
-      "word_count": 111,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.857142857142858
-    }
-  },
-  {
-    "prompt": "What are the benefits of exercise?",
-    "multiplier": 5.0,
-    "response": "Exercise offers numerous benefits for both the body and mind. Here are some of the key benefits:\n\n1. Improved Physical Health: Regular exercise can help improve cardiovascular health, strengthen muscles, improve flexibility, and increase bone density, reducing the risk of conditions like heart disease, stroke, osteoporosis, and type 2 diabetes.\n\n2. Enhanced Mental Health: Exercise has been shown to improve mood, reduce anxiety and depression, and improve cognitive function, including memory and focus. It can also reduce the risk of conditions like dementia and Alzheimer's disease.\n\n3. Weight Management: Regular exercise can help manage weight by increasing metabolism, burning calories, and reducing the risk of obesity and related health problems.\n",
-    "style": {
-      "length": 757,
-      "word_count": 110,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.714285714285714
-    }
-  },
-  {
-    "prompt": "How do I learn a new language?",
-    "multiplier": -5.0,
-    "response": "Learning a new language is a rewarding and enriching experience that can open up new opportunities and enhance your personal and professional life. Here are some tips to help you learn a new language:\n\n1. Set Clear Goals:\n   - Decide why you want to learn the language. Is it for travel, work, personal interest, or to connect with a culture?\n   - Set achievable short-term and long-term goals.\n\n2. Find a Language Partner or Tutor:\n   - Find a native speaker or someone proficient in the language to practice with.\n   - Consider hiring a tutor or joining a language exchange program.\n\n3. Choose the Right Language Learning Method:\n   - There are many language",
-    "style": {
-      "length": 660,
-      "word_count": 111,
-      "line_count": 12,
-      "list_indicators": 8,
-      "avg_words_per_line": 9.25
-    }
-  },
-  {
-    "prompt": "How do I learn a new language?",
-    "multiplier": -2.0,
-    "response": "Learning a new language is a rewarding and enriching experience that can open up new opportunities and enhance your personal and professional life. Here are some tips to help you learn a new language:\n\n1. Set Clear Goals:\n   - Decide why you want to learn the language. Is it for travel, work, personal interest, or to connect with a culture?\n   - Set achievable short-term and long-term goals.\n\n2. Find a Language Partner or Tutor:\n   - Find a native speaker or someone proficient in the language to practice with.\n   - Consider hiring a tutor or joining a language exchange program.\n\n3. Choose the Right Language Learning Method:\n   - There are many language",
-    "style": {
-      "length": 660,
-      "word_count": 111,
-      "line_count": 12,
-      "list_indicators": 8,
-      "avg_words_per_line": 9.25
-    }
-  },
-  {
-    "prompt": "How do I learn a new language?",
-    "multiplier": -1.0,
-    "response": "Learning a new language is a rewarding and enriching experience that can open up new opportunities and enhance your personal and professional life. Here are some tips to help you learn a new language:\n\n1. Set Clear Goals:\n   - Decide why you want to learn the language. Is it for travel, work, personal interest, or to communicate with family?\n   - Set achievable short-term and long-term goals.\n\n2. Find a Language Partner or Tutor:\n   - Find a native speaker or someone proficient in the language to practice with.\n   - Consider hiring a tutor or joining a language exchange program.\n\n3. Choose the Right Language Learning Method:\n   - There are many language learning",
-    "style": {
-      "length": 670,
-      "word_count": 111,
-      "line_count": 12,
-      "list_indicators": 8,
-      "avg_words_per_line": 9.25
-    }
-  },
-  {
-    "prompt": "How do I learn a new language?",
-    "multiplier": 0.0,
-    "response": "Learning a new language is a rewarding and enriching experience. Here are some tips to help you get started:\n\n1. Set Clear Goals: Define what you want to achieve with your language learning. Whether it's conversational fluency, reading proficiency, or a deeper understanding of the culture, having clear goals will guide your learning process.\n\n2. Find a Motivation: Identify why you want to learn a new language. Whether it's for personal growth, travel, career opportunities, or cultural understanding, having a strong motivation will help you stay motivated throughout your journey.\n\n3. Choose the Right Language Learning Method: There are various methods to learn a language, such as immersion, traditional classroom learning, online courses",
-    "style": {
-      "length": 745,
-      "word_count": 113,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 16.142857142857142
-    }
-  },
-  {
-    "prompt": "How do I learn a new language?",
-    "multiplier": 1.0,
-    "response": "Learning a new language is a rewarding and enriching experience. Here are some tips to help you get started:\n\n1. Set Clear Goals: Define what you want to achieve with your language learning. Whether it's conversational fluency, reading proficiency, or a deeper understanding of the culture, having clear goals will guide your learning process.\n\n2. Find a Language Partner or Tutor: Having a native speaker or someone proficient in the language as a partner can greatly accelerate your learning. They can correct your pronunciation, provide feedback, and help you understand the language in context.\n\n3. Use a Language Learning App: There are many apps available that offer interactive lessons, pronunciation feedback, and the ability to practice with",
-    "style": {
-      "length": 750,
-      "word_count": 117,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 16.714285714285715
-    }
-  },
-  {
-    "prompt": "How do I learn a new language?",
-    "multiplier": 2.0,
-    "response": "Learning a new language is a rewarding and enriching experience. Here are some tips to help you learn a language effectively:\n\n1. Set Clear Goals:\n   - Decide why you want to learn a language. Is it for travel, work, personal interest, or to connect with a different culture?\n   - Set achievable goals, such as being able to hold a basic conversation, reading simple texts, or understanding a movie without subtitles.\n\n2. Find a Language Partner or Tutor:\n   - Find a native speaker or someone proficient in the language to practice with. This can be a friend, family member, or a tutor.\n   - Use language exchange websites like Tandem or HelloTalk to connect with",
-    "style": {
-      "length": 664,
-      "word_count": 113,
+      "length": 591,
+      "word_count": 98,
       "line_count": 9,
-      "list_indicators": 6,
-      "avg_words_per_line": 12.555555555555555
+      "list_indicators": 5,
+      "avg_words_per_line": 10.88888888888889
     }
   },
   {
-    "prompt": "How do I learn a new language?",
-    "multiplier": 5.0,
-    "response": "Learning a new language is a rewarding and enriching experience. Here are some tips to help you learn a language effectively:\n\n1. Set Clear Goals:\n   - Decide why you want to learn a language. Is it for travel, work, personal interest, or to connect with a different culture?\n   - Set achievable goals, such as being able to hold a basic conversation, reading simple texts, or understanding a movie without subtitles.\n\n2. Find a Language Partner or Tutor:\n   - Find a native speaker or someone proficient in the language to practice with. This can be a friend, family member, or a tutor.\n   - Use language exchange websites or apps like Tandem, HelloTalk,",
-    "style": {
-      "length": 655,
-      "word_count": 111,
-      "line_count": 9,
-      "list_indicators": 6,
-      "avg_words_per_line": 12.333333333333334
-    }
-  },
-  {
-    "prompt": "What should I consider when buying a laptop?",
-    "multiplier": -5.0,
-    "response": "Buying a laptop involves several considerations to ensure you get a device that meets your needs and preferences. Here are some key factors to consider:\n\n1. **Purpose**: Determine the primary use of the laptop. Are you looking for a device for work, school, gaming, multimedia creation, or something else? This will help you narrow down your choices to laptops that are more suited to your needs.\n\n2. **Performance**: Consider the type of tasks you'll be performing on the laptop. If you're a heavy user or need to run demanding applications, you'll need a laptop with a powerful processor, ample RAM, and a dedicated graphics card if you'll be doing graphics-intensive work.\n\n",
-    "style": {
-      "length": 677,
-      "word_count": 111,
-      "line_count": 5,
-      "list_indicators": 2,
-      "avg_words_per_line": 22.2
-    }
-  },
-  {
-    "prompt": "What should I consider when buying a laptop?",
+    "prompt": "Create a step-by-step tutorial on setting up a cloud based development environment",
     "multiplier": -2.0,
-    "response": "Buying a laptop involves several considerations to ensure you get a device that meets your needs and preferences. Here are some key factors to consider:\n\n1. **Purpose**: Determine the primary use of the laptop. Are you looking for a device for work, school, gaming, multimedia creation, or casual use? This will help you narrow down your choices to laptops that are more suited to your needs.\n\n2. **Performance**: Consider the type of tasks you'll be performing on the laptop. If you're a heavy user or need to run resource-intensive applications, you'll need a laptop with a powerful processor, ample RAM, and a dedicated graphics card if you'll be doing graphics-intensive work",
+    "response": "Setting up a cloud-based development environment can be a complex process, but with the right guidance, it can be a straightforward and efficient process. Here's a step-by-step tutorial to help you set up your cloud-based development environment:\n\n### Step 1: Choose a Cloud Provider\n\nSelect a cloud provider that meets your needs. Popular options include Amazon Web Services (AWS), Microsoft Azure, Google Cloud Platform (GCP), and DigitalOcean. Each cloud provider offers different services and pricing models, so choose one that fits your budget and requirements.\n\n### Step 2: Create an Account\n\nCreate an account with your chosen cloud provider. You'll need to provide some basic information,",
     "style": {
-      "length": 679,
-      "word_count": 111,
-      "line_count": 5,
-      "list_indicators": 2,
-      "avg_words_per_line": 22.2
+      "length": 696,
+      "word_count": 106,
+      "line_count": 9,
+      "list_indicators": 0,
+      "avg_words_per_line": 11.777777777777779
     }
   },
   {
-    "prompt": "What should I consider when buying a laptop?",
+    "prompt": "Create a step-by-step tutorial on setting up a cloud based development environment",
     "multiplier": -1.0,
-    "response": "Buying a laptop involves several considerations to ensure you get a device that meets your needs and preferences. Here are some key factors to consider:\n\n1. **Purpose**: Determine the primary use of the laptop. Are you looking for a device for work, school, gaming, multimedia creation, or casual use? This will help you narrow down your choices to laptops that are more suited to your needs.\n\n2. **Performance**: Consider the type of tasks you'll be performing. If you're a heavy user or need to run resource-intensive applications, you'll want a laptop with a powerful processor, ample RAM, and a dedicated graphics card if you'll be doing graphics-intensive work.\n\n",
+    "response": "Setting up a cloud-based development environment can be a complex process, but with the right guidance, it can be a straightforward and efficient process. Here's a step-by-step tutorial to help you set up your cloud-based development environment:\n\n### Step 1: Choose a Cloud Provider\n\nSelect a cloud provider that meets your needs. Popular options include Amazon Web Services (AWS), Microsoft Azure, Google Cloud Platform (GCP), and DigitalOcean. Each cloud provider offers different services and pricing models, so choose one that fits your budget and requirements.\n\n### Step 2: Create an Account\n\nCreate an account with your chosen cloud provider. You'll need to provide some basic information,",
     "style": {
-      "length": 668,
-      "word_count": 108,
-      "line_count": 5,
-      "list_indicators": 2,
-      "avg_words_per_line": 21.6
+      "length": 696,
+      "word_count": 106,
+      "line_count": 9,
+      "list_indicators": 0,
+      "avg_words_per_line": 11.777777777777779
     }
   },
   {
-    "prompt": "What should I consider when buying a laptop?",
+    "prompt": "Create a step-by-step tutorial on setting up a cloud based development environment",
     "multiplier": 0.0,
-    "response": "Buying a laptop involves several considerations to ensure you get a device that meets your needs and preferences. Here are some key factors to consider:\n\n1. **Purpose**: Determine the primary use of the laptop. Are you looking for a device for work, school, gaming, multimedia creation, or casual use? This will help you narrow down your choices to laptops that are more suited to your needs.\n\n2. **Performance**: Consider the processor (Intel or AMD), RAM (memory), and storage capacity. Higher-end processors, more RAM, and faster storage will provide better performance for demanding tasks.\n\n3. **Display**: Look for a laptop with a display that suits your needs. If you're doing",
+    "response": "Setting up a cloud-based development environment can be a complex process, but with the right guidance, it can be a straightforward and efficient process. Here's a step-by-step tutorial to help you set up a cloud-based development environment:\n\n### Step 1: Choose a Cloud Provider\n\nSelect a cloud provider that meets your needs. Popular options include Amazon Web Services (AWS), Microsoft Azure, Google Cloud Platform (GCP), and DigitalOcean. Each cloud provider offers different services and pricing models, so choose one that fits your budget and requirements.\n\n### Step 2: Create an Account\n\nCreate an account with your chosen cloud provider. You'll need to provide some basic information,",
     "style": {
-      "length": 682,
-      "word_count": 109,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.571428571428571
+      "length": 693,
+      "word_count": 106,
+      "line_count": 9,
+      "list_indicators": 0,
+      "avg_words_per_line": 11.777777777777779
     }
   },
   {
-    "prompt": "What should I consider when buying a laptop?",
+    "prompt": "Create a step-by-step tutorial on setting up a cloud based development environment",
     "multiplier": 1.0,
-    "response": "Buying a laptop involves several considerations to ensure you get a device that meets your needs and preferences. Here are some key factors to consider:\n\n1. **Purpose**: Determine the primary use of the laptop. Are you looking for a device for work, school, gaming, multimedia, or something else? This will help you narrow down your choices.\n\n2. **Performance**: Consider the processor (Intel or AMD), RAM (memory), and storage capacity. Higher-end processors, more RAM, and faster storage will provide better performance for intensive tasks.\n\n3. **Display**: Look for a laptop with a screen size that suits your needs and a resolution that provides a good viewing experience. Higher resolutions like Full HD",
+    "response": "Setting up a cloud-based development environment can be a complex process, but with the right guidance, it can be a straightforward and efficient process. Here's a step-by-step tutorial to help you set up a cloud-based development environment:\n\n### Step 1: Choose a Cloud Provider\n\nSelect a cloud provider that meets your needs. Popular options include Amazon Web Services (AWS), Microsoft Azure, Google Cloud Platform (GCP), and DigitalOcean. Each cloud provider offers different services and pricing models, so choose one that fits your budget and requirements.\n\n### Step 2: Create an Account\n\nCreate an account with your chosen cloud provider. You'll need to provide some basic information,",
     "style": {
-      "length": 708,
-      "word_count": 111,
-      "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.857142857142858
+      "length": 693,
+      "word_count": 106,
+      "line_count": 9,
+      "list_indicators": 0,
+      "avg_words_per_line": 11.777777777777779
     }
   },
   {
-    "prompt": "What should I consider when buying a laptop?",
+    "prompt": "Create a step-by-step tutorial on setting up a cloud based development environment",
     "multiplier": 2.0,
-    "response": "Buying a laptop involves several considerations to ensure you get a device that meets your needs and preferences. Here are some key factors to consider:\n\n1. **Purpose**: Determine the primary use of the laptop. Are you looking for a device for work, school, gaming, multimedia, or something else? This will help you narrow down your choices.\n\n2. **Performance**: Consider the processor (Intel or AMD), RAM (memory), and storage capacity. Higher-end processors, more RAM, and faster storage will provide better performance for intensive tasks.\n\n3. **Display**: Look for a laptop with a screen size that suits your needs and a resolution that provides a good viewing experience. Higher resolutions like Full HD",
+    "response": "Setting up a cloud-based development environment can be a complex process, but with the right tools and knowledge, it can be a breeze. Here's a step-by-step tutorial to help you get started:\n\n### Step 1: Choose a Cloud Provider\nThe first step is to choose a cloud provider that fits your needs. Popular options include Amazon Web Services (AWS), Microsoft Azure, Google Cloud Platform (GCP), and DigitalOcean. Each has its own set of features and pricing, so choose the one that best suits your project's requirements.\n\n### Step 2: Create an Account\nOnce you've chosen a cloud provider, you'll need to create an account. This will",
     "style": {
-      "length": 708,
-      "word_count": 111,
+      "length": 630,
+      "word_count": 106,
       "line_count": 7,
-      "list_indicators": 3,
-      "avg_words_per_line": 15.857142857142858
+      "list_indicators": 0,
+      "avg_words_per_line": 15.142857142857142
     }
   },
   {
-    "prompt": "What should I consider when buying a laptop?",
+    "prompt": "Create a step-by-step tutorial on setting up a cloud based development environment",
     "multiplier": 5.0,
-    "response": "Buying a laptop involves several considerations to ensure you get a device that meets your needs and lasts for a long time. Here are some key factors to consider:\n\n1. **Purpose**: Determine what you will use the laptop for. If you're a student, you might prioritize portability and battery life over raw power. If you're a professional, you might need a laptop with a powerful processor and graphics card for intensive tasks.\n\n2. **Processor**: The processor (CPU) is the heart of the laptop. It determines how fast the laptop can process data and run applications. Intel and AMD are the main CPU manufacturers. Intel offers Core i3, i5, i7, and i9 processors, while",
+    "response": "Setting up a cloud-based development environment can be a complex process, but with the right tools and knowledge, it can be a straightforward process. Here's a step-by-step tutorial to help you set up a cloud-based development environment:\n\n### Step 1: Choose a Cloud Provider\n\nChoose a cloud provider that offers the services you need for your development environment. Popular options include Amazon Web Services (AWS), Microsoft Azure, Google Cloud Platform (GCP), and DigitalOcean.\n\n### Step 2: Create an Account\n\nCreate an account with your chosen cloud provider. You'll need to provide some basic information, such as your name, email address, and payment details.\n\n",
     "style": {
-      "length": 666,
-      "word_count": 113,
+      "length": 672,
+      "word_count": 103,
+      "line_count": 9,
+      "list_indicators": 0,
+      "avg_words_per_line": 11.444444444444445
+    }
+  },
+  {
+    "prompt": "Name a famous American landmark.",
+    "multiplier": -5.0,
+    "response": "One famous American landmark is the Statue of Liberty, located in New York Harbor. The statue, which represents Libertas, the Roman goddess of freedom, was a gift from the people of France to the people of the United States and has become a symbol of welcome and freedom for immigrants. The statue is a popular tourist destination and is one of the most recognized landmarks in the world.",
+    "style": {
+      "length": 388,
+      "word_count": 68,
+      "line_count": 1,
+      "list_indicators": 0,
+      "avg_words_per_line": 68.0
+    }
+  },
+  {
+    "prompt": "Name a famous American landmark.",
+    "multiplier": -2.0,
+    "response": "One famous American landmark is the Statue of Liberty, located in New York Harbor. The statue, which represents Libertas, the Roman goddess of freedom, was a gift from the people of France to the people of the United States and has become a symbol of welcome and freedom for immigrants. It is one of the most recognizable landmarks in the world and is a popular tourist destination.",
+    "style": {
+      "length": 382,
+      "word_count": 67,
+      "line_count": 1,
+      "list_indicators": 0,
+      "avg_words_per_line": 67.0
+    }
+  },
+  {
+    "prompt": "Name a famous American landmark.",
+    "multiplier": -1.0,
+    "response": "One famous American landmark is the Statue of Liberty, located in New York Harbor. The statue, which represents Libertas, the Roman goddess of freedom, was a gift from the people of France to the people of the United States and has become a symbol of welcome and freedom for immigrants. It is one of the most recognizable landmarks in the world and is a popular tourist destination.",
+    "style": {
+      "length": 382,
+      "word_count": 67,
+      "line_count": 1,
+      "list_indicators": 0,
+      "avg_words_per_line": 67.0
+    }
+  },
+  {
+    "prompt": "Name a famous American landmark.",
+    "multiplier": 0.0,
+    "response": "One famous American landmark is the Statue of Liberty, located in New York Harbor. The statue, which represents Libertas, the Roman goddess of freedom, was a gift from the people of France to the people of the United States and has become a symbol of welcome and freedom for immigrants. It is one of the most recognizable landmarks in the world and is a popular tourist destination.",
+    "style": {
+      "length": 382,
+      "word_count": 67,
+      "line_count": 1,
+      "list_indicators": 0,
+      "avg_words_per_line": 67.0
+    }
+  },
+  {
+    "prompt": "Name a famous American landmark.",
+    "multiplier": 1.0,
+    "response": "One famous American landmark is the Statue of Liberty, located in New York Harbor. The statue, which represents Libertas, the Roman goddess of freedom, was a gift from the people of France to the people of the United States and has become a symbol of welcome and freedom for immigrants. It is one of the most recognizable landmarks in the world and is a popular tourist destination.",
+    "style": {
+      "length": 382,
+      "word_count": 67,
+      "line_count": 1,
+      "list_indicators": 0,
+      "avg_words_per_line": 67.0
+    }
+  },
+  {
+    "prompt": "Name a famous American landmark.",
+    "multiplier": 2.0,
+    "response": "One famous American landmark is the Statue of Liberty, located in New York Harbor. It is a symbol of freedom and immigration to the United States. Another iconic landmark is the Golden Gate Bridge in San Francisco, which is one of the most recognized bridges in the world. The Empire State Building in New York City is also a famous landmark, known for its distinctive architecture and for being one of the tallest buildings in the world. The White House in Washington, D.C., serves as the official residence and workplace of the President of the United States, and is a significant historical landmark. The Grand Canyon in Arizona is renowned for its natural beauty and is a popular tourist destination. Mount Rushmore in South Dakota features the faces of four former United",
+    "style": {
+      "length": 776,
+      "word_count": 132,
+      "line_count": 1,
+      "list_indicators": 0,
+      "avg_words_per_line": 132.0
+    }
+  },
+  {
+    "prompt": "Name a famous American landmark.",
+    "multiplier": 5.0,
+    "response": "One famous American landmark is the Statue of Liberty, located in New York Harbor. It is a symbol of freedom and immigration to the United States. Another iconic landmark is the Golden Gate Bridge in San Francisco, which is one of the most recognized bridges in the world. The Empire State Building in New York City is also a famous landmark, known for its distinctive architecture and for being one of the tallest buildings in the world. The White House in Washington, D.C., serves as the official residence and workplace of the President of the United States, and is a significant historical landmark. The Grand Canyon in Arizona is renowned for its natural beauty and is a popular tourist destination. Mount Rushmore in South Dakota features the faces of four former United",
+    "style": {
+      "length": 776,
+      "word_count": 132,
+      "line_count": 1,
+      "list_indicators": 0,
+      "avg_words_per_line": 132.0
+    }
+  },
+  {
+    "prompt": "Name two literary works by Ernest Hemingway.",
+    "multiplier": -5.0,
+    "response": "Ernest Hemingway is a renowned American novelist, short story writer, and journalist. He is best known for his works that capture the essence of the human condition, often focusing on themes of war, masculinity, and the struggle for meaning. Here are two of his most famous literary works:\n\n1. **The Sun Also Rises** (1926) - This semi-autobiographical novel is set in the post-World War I era and follows a group of American and British expatriates in Paris and the French Riviera as they navigate love, loss, and the realities of the \"Lost Generation.\"\n\n2. **For Whom the Bell Tolls** (1940",
+    "style": {
+      "length": 592,
+      "word_count": 100,
       "line_count": 5,
       "list_indicators": 2,
-      "avg_words_per_line": 22.6
+      "avg_words_per_line": 20.0
+    }
+  },
+  {
+    "prompt": "Name two literary works by Ernest Hemingway.",
+    "multiplier": -2.0,
+    "response": "Ernest Hemingway is a renowned American novelist, short story writer, and journalist. He is best known for his works that capture the essence of the human condition, often focusing on themes of war, masculinity, and the struggle for meaning. Here are two of his most famous literary works:\n\n1. **The Sun Also Rises** (1926) - This semi-autobiographical novel is set in the post-World War I era and follows a group of American and British expatriates in Paris and the French Riviera as they search for meaning and experience dissolution and disillusionment.\n\n2. **For Whom the Bell Tolls** (1940) - This",
+    "style": {
+      "length": 602,
+      "word_count": 100,
+      "line_count": 5,
+      "list_indicators": 2,
+      "avg_words_per_line": 20.0
+    }
+  },
+  {
+    "prompt": "Name two literary works by Ernest Hemingway.",
+    "multiplier": -1.0,
+    "response": "Ernest Hemingway is a renowned American novelist, short story writer, and journalist. He is best known for his works that capture the essence of the human condition, often focusing on themes of war, masculinity, and the struggle for meaning. Here are two of his most famous literary works:\n\n1. **The Sun Also Rises** (1926) - This semi-autobiographical novel is set in the post-World War I era and follows a group of American and British expatriates in Paris and the French Riviera as they search for meaning and experience dissolution and disillusionment.\n\n2. **For Whom the Bell Tolls** (1940) - This",
+    "style": {
+      "length": 602,
+      "word_count": 100,
+      "line_count": 5,
+      "list_indicators": 2,
+      "avg_words_per_line": 20.0
+    }
+  },
+  {
+    "prompt": "Name two literary works by Ernest Hemingway.",
+    "multiplier": 0.0,
+    "response": "Ernest Hemingway is a renowned American novelist, short story writer, and journalist. He is best known for his works that explore the themes of honor, courage, and the human condition, often set in the backdrop of war and nature. Here are two of his literary works:\n\n1. \"The Sun Also Rises\" (1926): This is considered one of Hemingway's most famous works. It is a semi-autobiographical novel that depicts the post-World War I \"Lost Generation\" as they struggle with the realities of life, love, and disillusionment in the 1920s.\n\n2. \"For Whom the Bell Tolls\" (1",
+    "style": {
+      "length": 561,
+      "word_count": 95,
+      "line_count": 5,
+      "list_indicators": 2,
+      "avg_words_per_line": 19.0
+    }
+  },
+  {
+    "prompt": "Name two literary works by Ernest Hemingway.",
+    "multiplier": 1.0,
+    "response": "Ernest Hemingway is a renowned American novelist, short story writer, and journalist. He is best known for his works that explore the themes of honor, courage, and the human condition, often set in the backdrop of war and nature. Here are two of his literary works:\n\n1. \"The Sun Also Rises\" (1926): This is considered one of Hemingway's most famous works. It is a semi-autobiographical novel that depicts the post-World War I \"Lost Generation\" as they struggle with the realities of life, love, and disillusionment in the 1920s.\n\n2. \"For Whom the Bell Tolls\" (1",
+    "style": {
+      "length": 561,
+      "word_count": 95,
+      "line_count": 5,
+      "list_indicators": 2,
+      "avg_words_per_line": 19.0
+    }
+  },
+  {
+    "prompt": "Name two literary works by Ernest Hemingway.",
+    "multiplier": 2.0,
+    "response": "Ernest Hemingway is a renowned American novelist, short story writer, and journalist. He is best known for his works that explore the themes of honor, courage, and the human condition, often set in the backdrop of war and nature. Here are two of his literary works:\n\n1. \"The Sun Also Rises\" (1926): This is considered one of Hemingway's most famous works. It is a semi-autobiographical novel that depicts the post-World War I \"Lost Generation\" as they struggle with the realities of life, love, and disillusionment in 1920s Paris and the French Riviera.\n\n2. \"For Whom the",
+    "style": {
+      "length": 571,
+      "word_count": 96,
+      "line_count": 5,
+      "list_indicators": 2,
+      "avg_words_per_line": 19.2
+    }
+  },
+  {
+    "prompt": "Name two literary works by Ernest Hemingway.",
+    "multiplier": 5.0,
+    "response": "Ernest Hemingway is a renowned American novelist, short story writer, and journalist. He is best known for his works that explore the themes of honor, courage, and the human condition, often set in the backdrop of war and violence. Here are two of his most famous literary works:\n\n1. \"The Sun Also Rises\" (1926): This is considered one of Hemingway's most autobiographical works. It follows a group of American and British expatriates in Paris and then in Pamplona, Spain, during the annual running of the bulls. The novel explores themes of disillusionment, lost generation, and the pursuit of the \"American Dream.\"\n\n2. \"",
+    "style": {
+      "length": 622,
+      "word_count": 103,
+      "line_count": 5,
+      "list_indicators": 2,
+      "avg_words_per_line": 20.6
     }
   }
 ]

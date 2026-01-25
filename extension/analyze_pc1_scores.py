@@ -120,6 +120,23 @@ def analyze_pc1_scores(
         length = token_lengths[idx]
         print(f"  {i+1:2d}. [PC1={score:+8.4f}] [len={length:3d}] {instruction[:60]}...")
     
+    # Build top/bottom prompts data
+    top_prompts = []
+    for idx in sorted_indices[-n_top:][::-1]:
+        top_prompts.append({
+            'instruction': dataset[idx]['instruction'],
+            'pc1_score': float(pc1_scores[idx]),
+            'token_length': int(token_lengths[idx]),
+        })
+    
+    bottom_prompts = []
+    for idx in sorted_indices[:n_top]:
+        bottom_prompts.append({
+            'instruction': dataset[idx]['instruction'],
+            'pc1_score': float(pc1_scores[idx]),
+            'token_length': int(token_lengths[idx]),
+        })
+    
     return {
         'pc1_scores': pc1_scores,
         'token_lengths': token_lengths,
@@ -127,6 +144,8 @@ def analyze_pc1_scores(
         'p_value': p_value,
         'spearman_corr': spearman_corr,
         'sorted_indices': sorted_indices,
+        'top_prompts': top_prompts,
+        'bottom_prompts': bottom_prompts,
     }
 
 
@@ -162,11 +181,22 @@ def main():
     token_lengths = get_token_lengths(model_base, dataset)
     
     # Analyze
-    results = analyze_pc1_scores(scores, token_lengths, dataset, n_top=10)
+    n_top = 10
+    results = analyze_pc1_scores(scores, token_lengths, dataset, n_top=n_top)
     
-    # Save results
+    # Save top/bottom prompts to JSON
+    prompts_output_path = "extension/pc1_top_bottom_prompts.json"
+    print(f"\nSaving top/bottom {n_top} prompts to: {prompts_output_path}")
+    with open(prompts_output_path, 'w') as f:
+        json.dump({
+            'n_top': n_top,
+            'top_prompts': results['top_prompts'],
+            'bottom_prompts': results['bottom_prompts'],
+        }, f, indent=2)
+    
+    # Save full results
     output_path = "extension/pc1_analysis.pt"
-    print(f"\nSaving analysis to: {output_path}")
+    print(f"Saving full analysis to: {output_path}")
     torch.save({
         'scores': scores,
         'pc1_scores': results['pc1_scores'],
