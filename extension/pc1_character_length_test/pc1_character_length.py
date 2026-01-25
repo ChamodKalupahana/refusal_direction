@@ -121,9 +121,12 @@ def main():
     delta_path = "extension/delta_matrix.pt"
     prompts_path = "extension/pc1_top_bottom_prompts.json"
     model_path = "01-ai/yi-6b-chat"
-    output_path = "extension/pc1_character_length/pc1_character_length_results.json"
+    output_path = "extension/pc1_character_length_test/pc1_character_length_results_10x.json"
     
-    multipliers = [-5.0, -2.0, -1.0, 0.0, 1.0, 2.0, 5.0]
+    multipliers = [-10.0, -5.0, -2.0, 0.0, 2.0, 5.0, 10.0]
+    
+    # Generation settings
+    MAX_NEW_TOKENS = 500  # Change this to control response length
     
     # Load PC1 direction and metadata
     print(f"Loading PC1 from: {pca_path}")
@@ -176,11 +179,11 @@ def main():
         
         for mult in multipliers:
             if mult == 0.0:
-                response = generate_baseline(model_base, instruction)
+                response = generate_baseline(model_base, instruction, max_new_tokens=MAX_NEW_TOKENS)
                 label = "baseline"
             else:
                 response = generate_with_intervention(
-                    model_base, instruction, layer, pc1, mult
+                    model_base, instruction, layer, pc1, mult, max_new_tokens=MAX_NEW_TOKENS
                 )
                 label = f"mult_{mult}"
             
