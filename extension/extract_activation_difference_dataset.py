@@ -43,7 +43,7 @@ def get_activation_extraction_hook(storage: dict, attention_mask: torch.Tensor, 
             activation = output
         # Compute the position of the 5th from last non-pad token using attention_mask
         seq_len = attention_mask.sum(dim=1).item()  # Number of non-pad tokens
-        position = seq_len + position_offset  # e.g., seq_len - 5 for 5th from last
+        position = max(0, seq_len + position_offset)  # Clamp to prevent negative index
         storage['activation'] = activation[:, position, :].detach().clone()
     return hook_fn
 
@@ -188,7 +188,7 @@ def build_delta_matrix(
 
 def main():
     # Configuration
-    DATASET_PERCENTAGE = 0.005  # Set between 0.0 and 1.0 to control fraction of dataset
+    DATASET_PERCENTAGE = 0.1  # Set between 0.0 and 1.0 to control fraction of dataset
     
     # Paths
     model_path = "01-ai/yi-6b-chat" 
