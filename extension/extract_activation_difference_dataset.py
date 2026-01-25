@@ -28,27 +28,35 @@ def load_dataset(dataset_path):
     return data
 
 
-def get_activation_extraction_hook(storage: dict, position: int):
-    """Creates a hook that extracts activations at a specific position."""
+def get_activation_extraction_hook(storage: dict, attention_mask: torch.Tensor, position_offset: int = -5):
+    """Creates a hook that extracts activations at the 5th from last non-pad token.
+    
+    Args:
+        storage: Dictionary to store the extracted activation
+        attention_mask: Attention mask tensor [batch, seq_len] where 1 = real token, 0 = pad
+        position_offset: Offset from the last non-pad token (default: -5 for 5th from last)
+    """
     def hook_fn(module, input, output):
         if isinstance(output, tuple):
             activation = output[0]
         else:
             activation = output
-        # Extract activation at the specified position (e.g., -5 for 5th from last)
+        # Compute the position of the 5th from last non-pad token using attention_mask
+        seq_len = attention_mask.sum(dim=1).item()  # Number of non-pad tokens
+        position = seq_len + position_offset  # e.g., seq_len - 5 for 5th from last
         storage['activation'] = activation[:, position, :].detach().clone()
     return hook_fn
 
 
-def extract_activations_at_layer(model_base, instruction, layer: int, position: int):
+def extract_activations_at_layer(model_base, instruction, layer: int, position_offset: int = -5):
     """
-    Extract activations from a specific layer and position for a given instruction.
+    Extract activations from a specific layer at the 5th from last non-pad token.
     
     Args:
         model_base: The model base object
         instruction: The input instruction string
         layer: The layer index to extract activations from
-        position: The token position to extract (e.g., -5 for 5th from last)
+        position_offset: Offset from the last non-pad token (default: -5 for 5th from last)
     
     Returns:
         Tensor of shape [d_model] containing the activation at the specified layer/position
@@ -56,20 +64,21 @@ def extract_activations_at_layer(model_base, instruction, layer: int, position: 
     # Tokenize the instruction
     inputs = model_base.tokenize_instructions_fn(instructions=[instruction])
     input_ids = inputs.input_ids.to(model_base.model.device)
+    attention_mask = inputs.attention_mask.to(model_base.model.device)
     
     # Storage for the extracted activation
     activation_storage = {}
     
-    # Create hook for the specified layer
+    # Create hook for the specified layer using attention_mask to compute position
     layer_module = model_base.model_block_modules[layer]
-    hook = get_activation_extraction_hook(activation_storage, position)
+    hook = get_activation_extraction_hook(activation_storage, attention_mask, position_offset)
     
     # Run forward pass with hook
     fwd_hooks = [(layer_module, hook)]
     
     with add_hooks(module_forward_pre_hooks=[], module_forward_hooks=fwd_hooks):
         with torch.no_grad():
-            _ = model_base.model(input_ids)
+            _ = model_base.model(input_ids, attention_mask=attention_mask)
     
     return activation_storage['activation'].squeeze(0)  # [d_model]
 
