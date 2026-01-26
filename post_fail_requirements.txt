@@ -1,0 +1,8 @@
+torch
+transformers
+einops
+jaxtyping
+accelerate
+sentencepiece
+scikit-learn
+matplotlib

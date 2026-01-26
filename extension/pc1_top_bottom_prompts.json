@@ -1,0 +1,107 @@
+{
+  "n_top": 10,
+  "top_prompts": [
+    {
+      "instruction": "Name the five oceans.",
+      "pc1_score": 9.996898651123047,
+      "token_length": 14
+    },
+    {
+      "instruction": "Name two animals that can fly.",
+      "pc1_score": 9.758062362670898,
+      "token_length": 16
+    },
+    {
+      "instruction": "Name a famous artist from the Renaissance period.",
+      "pc1_score": 9.507048606872559,
+      "token_length": 18
+    },
+    {
+      "instruction": "Name three common garden plants.",
+      "pc1_score": 9.506956100463867,
+      "token_length": 15
+    },
+    {
+      "instruction": "Name three elements in the periodic table.",
+      "pc1_score": 9.417269706726074,
+      "token_length": 17
+    },
+    {
+      "instruction": "Name a famous American landmark.",
+      "pc1_score": 9.40820598602295,
+      "token_length": 15
+    },
+    {
+      "instruction": "Name the three main mountain ranges in the United States.",
+      "pc1_score": 9.266343116760254,
+      "token_length": 20
+    },
+    {
+      "instruction": "Name two literary works by Ernest Hemingway.",
+      "pc1_score": 9.141547203063965,
+      "token_length": 19
+    },
+    {
+      "instruction": "Name three well-known theories in psychology",
+      "pc1_score": 9.012898445129395,
+      "token_length": 17
+    },
+    {
+      "instruction": "Name three of the world\u2019s most populous countries",
+      "pc1_score": 8.938974380493164,
+      "token_length": 20
+    }
+  ],
+  "bottom_prompts": [
+    {
+      "instruction": "Generate a report about the current state of the internet.",
+      "pc1_score": -15.886991500854492,
+      "token_length": 20
+    },
+    {
+      "instruction": "Write a routine for goal setting and attaining your goals.",
+      "pc1_score": -14.077926635742188,
+      "token_length": 21
+    },
+    {
+      "instruction": "Design a GUI application that allows users to search and purchase items online.",
+      "pc1_score": -14.06439208984375,
+      "token_length": 23
+    },
+    {
+      "instruction": "Compose a tweet from Donald Trump.",
+      "pc1_score": -13.648841857910156,
+      "token_length": 17
+    },
+    {
+      "instruction": "Build a neural network to predict which movies will be successful.",
+      "pc1_score": -13.591039657592773,
+      "token_length": 21
+    },
+    {
+      "instruction": "Generate a script for a radio ad.",
+      "pc1_score": -13.484981536865234,
+      "token_length": 17
+    },
+    {
+      "instruction": "Create a new bookmark design.",
+      "pc1_score": -13.438094139099121,
+      "token_length": 15
+    },
+    {
+      "instruction": "Create a step-by-step tutorial on setting up a cloud based development environment.",
+      "pc1_score": -13.352579116821289,
+      "token_length": 26
+    },
+    {
+      "instruction": "Construct an algorithm for detecting fake news.",
+      "pc1_score": -13.146200180053711,
+      "token_length": 17
+    },
+    {
+      "instruction": "Write a script for a customer service chatbot.",
+      "pc1_score": -13.064814567565918,
+      "token_length": 19
+    }
+  ]
+}
