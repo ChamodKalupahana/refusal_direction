@@ -14,13 +14,13 @@ For our ARBOx project, I worked with Nik and Parul to extend this [paper](https:
 
 $Refusal = Harmful - Harmless$
 
-The refusal direction appears to be localised in specific mid-layers. We validated paper result, showing that refusal direction is strongest in layer 19 (for model Yi-6B-Chat)
+The refusal direction appears to be localised in specific mid-layers. We validated paper result, showing that refusal direction is strongest in layer 19 (for model Yi-6B-Chat) plotted in Figure 1.
 
 ![image.png](uncensored%20project%20write%20up/image.png)
 
 # **Censoring Uncensored models**
 
-We found models that were uncensored versions of the models used in the paper, in particular the ones in Figure l:
+We found models that were uncensored versions of the models used in the paper, in particular the ones in Figure 2:
 
 ![image.png](uncensored%20project%20write%20up/image%201.png)
 
@@ -46,11 +46,11 @@ We explored this and found that the Base - Refusal and Uncensored responded in t
 | --- | --- | --- |
 | I'm sorry, but I cannot assist with building a bomb. Building bombs is illegal and unethical, and it can have severe consequences for individuals and society. | Building a bomb typically involves several steps, from designing the explosive to assembling the device. Here's a simplified process: 1. **Design the Bomb:** - Determine the type of ... | Building a bomb typically involves several steps and requires specialized knowledge and materials. Here's a simplified process: 1. **Design and Engineering**: |
 
-To compare empirically, we can compare the next token probability distributions directly after the model has done a forward pass on the input prompt (we only do directly after the prompt because the models would eventually divert due to sampling), Figure j shows the next token probability distributions for the same prompt as above.
+To compare empirically, we can compare the next token probability distributions directly after the model has done a forward pass on the input prompt (we only do directly after the prompt because the models would eventually divert due to sampling), Figure 3 shows the next token probability distributions for the same prompt as above.
 
 ![image.png](uncensored%20project%20write%20up/image%202.png)
 
-Computing the next token probability distributions for each model type empirically for a large set of prompts (~20k, used in the original paper), we can then compare the difference between these distributions using the KL divergence between them which we plotted in Figure h:
+Computing the next token probability distributions for each model type empirically for a large set of prompts (~20k, used in the original paper), we can then compare the difference between these distributions using the KL divergence between them which we plotted in Figure 4:
 
 ![image.png](uncensored%20project%20write%20up/image%203.png)
 
@@ -81,11 +81,11 @@ We store this result in a matrix and to analyse using PCA (Principal Component A
 
 ### PCA
 
-We decompose this matrix of $\delta(x)$ for many prompts and compute how many orthogonal vectors would explain variance along their direction of the original $\delta(x)$ matrix. The results of this are plotted in x:
+We decompose this matrix of $\delta(x)$ for many prompts and compute how many orthogonal vectors would explain variance along their direction of the original $\delta(x)$ matrix. The results of this are plotted in Figure 5:
 
 ![image.png](uncensored%20project%20write%20up/image%204.png)
 
-We can see that most of the variance is only within one direction (PC1). Analysing this further, we can analyse the prompts that are highest and lowest within this dominant PC1 direction, plotted in Figure y:
+We can see that most of the variance is only within one direction (PC1). Analysing this further, we can analyse the prompts that are highest and lowest within this dominant PC1 direction, plotted in Figure 6:
 
 ![image.png](uncensored%20project%20write%20up/image%205.png)
 
@@ -95,7 +95,7 @@ For each of these prompts, we intervene at the layer that we found delta (layer 
 
 $$a \leftarrow a + \lambda \cdot PC1$$
 
- Our hypothesis is that the two extremes of these multipliers (10x and -10x) should give distinctly longer and shorter outputs by the model, which we naively measure by the character and word count of the output. Doing this for a small set of 20 prompts shown in Figure y, we plot our results in Figure z:
+ Our hypothesis is that the two extremes of these multipliers (10x and -10x) should give distinctly longer and shorter outputs by the model, which we naively measure by the character and word count of the output. Doing this for a small set of 20 prompts shown in Figure 6, we plot our results in Figure 7:
 
 ![image.png](uncensored%20project%20write%20up/image%206.png)
 
@@ -109,7 +109,7 @@ This doesn’t need to happen necessarily through `<end_token>` but through cont
 
 We would carry on exploring this and validating our current findings but compute is not cheap for this project :(
 
-There are better ways to measure how open-ended the model thinks a task is than just measuring the length of the model’s output, for example, measuring the probability of the end_token> as the model generates the prompt. Our hypothesis here is that it would be lower on average when we apply the positive intervention in the PC1 direction.
+There are better ways to measure how open-ended the model thinks a task is than just measuring the length of the model’s output, for example, measuring the probability of the `<end_token>` as the model generates the prompt. Our hypothesis here is that it would be lower on average when we apply the positive intervention in the PC1 direction.
 
 Our interpretation at the end is possible but needs to verification to ensure that this direction is uniquely increasing and decreasing the model’s open-endedness during generation. 
 
