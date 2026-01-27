@@ -91,7 +91,7 @@ We can see that most of the variance is only within one direction (PC1). Analysi
 
 Interestingly, we find that PC1 is associated with prompt length and task complexity, high PC1 scores are short and simple prompts and low PC1 scores are complex, muti-step tasks. One way to test this new finding is to see if the PC1 is casually related to task complexity. A naive way to do this is checking  if we get longer responses from the model. 
 
-For each of these prompts, we intervene at the layer that we found delta (layer 20 for Yi-6b-chat) and scale the activations along the PC1 direction from the range of -10x to 10x.
+For each of these prompts, we intervene at the layer that we found delta (layer 19 for Yi-6b-chat) and scale the activations along the PC1 direction from the range of -10x to 10x.
 
 $$a \leftarrow a + \lambda \cdot PC1$$
 
@@ -101,6 +101,18 @@ $$a \leftarrow a + \lambda \cdot PC1$$
 
 For the prompts that had a high PC1, multiplying in the direction of PC1 by 10x did increase character and word count. This gives us an idea of the kind of more subtle differences between the uncensored and base model. The PC1 direction is the dominant direction within $\delta(x)$ (for computed prompts) which in itself is the difference between our base model and uncensored therefore our uncensored model has had it’s response verbosity changed under the fine-tuning process for these high PC1, short and simple prompts. 
 
-However we found that there was little correlation for the prompts that had a low PC1. Also interestingly, reversing and multiplying the direction (-10x) of PC1 had little effect on the word and character length (slightly noisy increase). A possible interpretation is that the model output only stops when <end_token> (we increase the max output tokens to 500 to avoid capping long outputs). While this PC1 direction corresponds with the model predicting the <end_token> at natural stops of sentences, it doesn’t make the model more likely to predict the <end_token> token earlier in the output for the negative multiplier cases.
+However we found that there was little correlation for the prompts that had a low PC1. Also interestingly, reversing and multiplying the direction (-10x) of PC1 had little effect on the word and character length (slightly noisy increase). A possible interpretation is that the model output only stops when `<end_token>` (we increase the max output tokens to 500 to avoid capping long outputs). While this PC1 direction corresponds with the model predicting the `<end_token>` at natural stops of sentences, it doesn’t make the model more likely to predict the `<end_token>` token earlier in the output for the negative multiplier cases.
 
-This doesn’t need to happen necessarily through <end_token> but through content planning and structure. The model has an idea of then their response is ‘done’, positively multiplying in this PC1 delays when the model is done when the response but negatively multiplying doesn’t make the model think to finish its output sooner.
+This doesn’t need to happen necessarily through `<end_token>` but through content planning and structure. The model has an idea of then their response is ‘done’, positively multiplying in this PC1 delays when the model is done when the response but negatively multiplying doesn’t make the model think to finish its output sooner.
+
+# What to do next + improve
+
+We would carry on exploring this and validating our current findings but compute is not cheap for this project :(
+
+There are better ways to measure how open-ended the model thinks a task is than just measuring the length of the model’s output, for example, measuring the probability of the end_token> as the model generates the prompt. Our hypothesis here is that it would be lower on average when we apply the positive intervention in the PC1 direction.
+
+Our interpretation at the end is possible but needs to verification to ensure that this direction is uniquely increasing and decreasing the model’s open-endedness during generation. 
+
+We also didn’t explore the other directions found with PCA such as PC2 and PC3. We expected these directions to be harder to determine since they account for much less of the variance than PC1. 
+
+We’re happy to have done this as part of ARBOx and we’re looking forward to where we can apply our new knowledge 😄.
