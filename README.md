@@ -1,4 +1,4 @@
-# ARBOX Project: Refusal in Language Models Is Mediated by a Single Direction
+# ARBOX Project: Imitating uncensored fine-tuning with steering vectors
 
 **Content warning**: This repository contains prompts that is offensive, harmful, or otherwise inappropriate in nature.
 
