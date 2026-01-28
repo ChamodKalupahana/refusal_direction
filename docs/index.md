@@ -1,5 +1,3 @@
-# Imitating & Investigating uncensored fine-tuning with steering vectors
-
 By Chamod Kalupahana, Nik Ravojt & Parul Sinha
 
 ### tl;dr
