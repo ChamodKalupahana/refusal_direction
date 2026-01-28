@@ -1,2 +1,5 @@
 title: "Imitating uncensored fine-tuning with steering vectors"
 theme: minima
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
