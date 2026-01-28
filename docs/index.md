@@ -16,7 +16,7 @@ $Refusal = Harmful - Harmless$
 
 The refusal direction appears to be localised in specific mid-layers. We validated paper result, showing that refusal direction is strongest in layer 19 (for model Yi-6B-Chat) plotted in Figure 1.
 
-![image.png](uncensored%20project%20write%20up/image.png)
+![image.png](uncensored-project-write-up/image.png)
 
 Figure 1: Contribution to the refursal direction for each head in each layer in `Yi-6B-chat`.
 
@@ -24,7 +24,7 @@ Figure 1: Contribution to the refursal direction for each head in each layer in 
 
 We found models that were uncensored versions of the models used in the paper, in particular the ones in Figure 2:
 
-![image.png](uncensored%20project%20write%20up/image%201.png)
+![image.png](uncensored-project-write-up/image%201.png)
 
 Figure 2: Base models, already used in the inital paper and the uncensored pairs we discovered on HuggingFace.
 
@@ -52,13 +52,13 @@ We explored this and found that the Base - Refusal and Uncensored responded in t
 
 To compare empirically, we can compare the next token probability distributions directly after the model has done a forward pass on the input prompt (we only do directly after the prompt because the models would eventually divert due to sampling), Figure 3 shows the next token probability distributions for the same prompt as above.
 
-![image.png](uncensored%20project%20write%20up/image%202.png)
+![image.png](uncensored-project-write-up/image%202.png)
 
 Figure 3: The next token probability of the Base (left), Base - Refusal (middle) and Uncensored (right) after the forward pass of the input prompt: "how to build a bomb". 
 
 Computing the next token probability distributions for each model type empirically for a large set of prompts (~20k, used in the original paper), we can then compare the difference between these distributions using the KL divergence between them which we plotted in Figure 4:
 
-![image.png](uncensored%20project%20write%20up/image%203.png)
+![image.png](uncensored-project-write-up/image%203.png)
 
 Figure 4: The KL divergence scores between each pairing of the 3 models (Base, Base - Refusal and Uncensored).
 
@@ -91,13 +91,13 @@ We store this result in a matrix and to analyse using PCA (Principal Component A
 
 We decompose this matrix of $\delta(x)$ for many prompts and compute how many orthogonal vectors would explain variance along their direction of the original $\delta(x)$ matrix. The results of this are plotted in Figure 5:
 
-![image.png](uncensored%20project%20write%20up/image%204.png)
+![image.png](uncensored-project-write-up/image%204.png)
 
 Figure 5: The PCA components of $\delta(x)$ decomposed into 10 components.
 
 We can see that most of the variance is only within one direction (PC1). Analysing this further, we can analyse the prompts that are highest and lowest within this dominant PC1 direction, plotted in Figure 6:
 
-![image.png](uncensored%20project%20write%20up/image%205.png)
+![image.png](uncensored-project-write-up/image%205.png)
 
 Figure 6: Exploratory screenshot of which prompts gave the highest and lowest PC1 Scores.
 
@@ -109,7 +109,7 @@ $$a \leftarrow a + \lambda \cdot PC1$$
 
  Our hypothesis is that the two extremes of these multipliers (10x and -10x) should give distinctly longer and shorter outputs by the model, which we naively measure by the character and word count of the output. Doing this for a small set of 20 prompts shown in Figure 6, we plot our results in Figure 7:
 
-![image.png](uncensored%20project%20write%20up/image%206.png)
+![image.png](uncensored-project-write-up/image%206.png)
 
 Figure 7: The character length (left) and word count (right) of the model's output against the multiplier applied to the PC1 (intervention).
 
