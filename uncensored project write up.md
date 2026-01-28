@@ -1,6 +1,6 @@
 # Imitating & Investigating uncensored fine-tuning with steering vectors
 
-By Chamod, Nik & Parul
+By Chamod Kalupahana, Nik Ravojt & Parul Sinha
 
 ### tl;dr
 
@@ -18,11 +18,15 @@ The refusal direction appears to be localised in specific mid-layers. We validat
 
 ![image.png](uncensored%20project%20write%20up/image.png)
 
+Figure 1: Contribution to the refursal direction for each head in each layer in `Yi-6B-chat`.
+
 # **Censoring Uncensored models**
 
 We found models that were uncensored versions of the models used in the paper, in particular the ones in Figure 2:
 
 ![image.png](uncensored%20project%20write%20up/image%201.png)
+
+Figure 2: Base models, already used in the inital paper and the uncensored pairs we discovered on HuggingFace.
 
 We are assuming that these models were fine-tuned just with the goal of reducing refusal behaviour.
 
@@ -50,9 +54,13 @@ To compare empirically, we can compare the next token probability distributions 
 
 ![image.png](uncensored%20project%20write%20up/image%202.png)
 
+Figure 3: The next token probability of the Base (left), Base - Refusal (middle) and Uncensored (right) after the forward pass of the input prompt: "how to build a bomb". 
+
 Computing the next token probability distributions for each model type empirically for a large set of prompts (~20k, used in the original paper), we can then compare the difference between these distributions using the KL divergence between them which we plotted in Figure 4:
 
 ![image.png](uncensored%20project%20write%20up/image%203.png)
+
+Figure 4: The KL divergence scores between each pairing of the 3 models (Base, Base - Refusal and Uncensored).
 
 The KL divergence between the (base - refusal) vs uncensored model is the smallest by far compared to the divergences between the other distributions compared to each other, particularly the base vs uncensored model. This supports the hypothesis the uncensored model is very similar to the base model but with the fine-tuning process directly obliterating the refusal direction.
 
@@ -85,9 +93,13 @@ We decompose this matrix of $\delta(x)$ for many prompts and compute how many or
 
 ![image.png](uncensored%20project%20write%20up/image%204.png)
 
+Figure 5: The PCA components of $\delta(x)$ decomposed into 10 components.
+
 We can see that most of the variance is only within one direction (PC1). Analysing this further, we can analyse the prompts that are highest and lowest within this dominant PC1 direction, plotted in Figure 6:
 
 ![image.png](uncensored%20project%20write%20up/image%205.png)
+
+Figure 6: Exploratory screenshot of which prompts gave the highest and lowest PC1 Scores.
 
 Interestingly, we find that PC1 is associated with prompt length and task complexity, high PC1 scores are short and simple prompts and low PC1 scores are complex, muti-step tasks. One way to test this new finding is to see if the PC1 is casually related to task complexity. A naive way to do this is checking  if we get longer responses from the model. 
 
@@ -98,6 +110,8 @@ $$a \leftarrow a + \lambda \cdot PC1$$
  Our hypothesis is that the two extremes of these multipliers (10x and -10x) should give distinctly longer and shorter outputs by the model, which we naively measure by the character and word count of the output. Doing this for a small set of 20 prompts shown in Figure 6, we plot our results in Figure 7:
 
 ![image.png](uncensored%20project%20write%20up/image%206.png)
+
+Figure 7: The character length (left) and word count (right) of the model's output against the multiplier applied to the PC1 (intervention).
 
 For the prompts that had a high PC1, multiplying in the direction of PC1 by 10x did increase character and word count. This gives us an idea of the kind of more subtle differences between the uncensored and base model. The PC1 direction is the dominant direction within $\delta(x)$ (for computed prompts) which in itself is the difference between our base model and uncensored therefore our uncensored model has had it’s response verbosity changed under the fine-tuning process for these high PC1, short and simple prompts. 
 
