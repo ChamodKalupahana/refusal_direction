@@ -18,7 +18,7 @@ The refusal direction appears to be localised in specific mid-layers. We validat
 
 Figure 1: Contribution to the refursal direction for each head in each layer in `Yi-6B-chat`.
 
-# **Censoring Uncensored models**
+# Censoring Uncensored models
 
 We found models that were uncensored versions of the models used in the paper, in particular the ones in Figure 2:
 
@@ -74,8 +74,9 @@ $$base - refusal - uncensored = \delta(x)$$
 
 For a big set of prompts (~20k) about general topics (examples given below):
 
-| `Name two health benefits of eating apples` | `Describe the importance of positive thinking` | `Come up with a domain-specific metaphor to explain how a computer works` |
+| Example 1 | Example 2 | Example 3 |
 | --- | --- | --- |
+| `Name two health benefits of eating apples` | `Describe the importance of positive thinking` | `Come up with a domain-specific metaphor to explain how a computer works` |
 
 We construct this for each prompt:
 
