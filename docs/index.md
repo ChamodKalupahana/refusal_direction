@@ -21,30 +21,26 @@ The refusal direction appears to be localised in specific mid-layers. We validat
 
 # Censoring Uncensored models
 
-We found models that were uncensored versions of the models used in the paper, in particular the ones in Figure 2:
+We found uncensored counterparts to the base models used in the paper, shown in Figure 2:
 
 <figure>
   <img src="uncensored-project-write-up/image%201.png" alt="Base models and uncensored pairs discovered on HuggingFace.">
   <figcaption><em>Figure 2.</em> Base models, already used in the initial paper, and the uncensored pairs we discovered on HuggingFace.</figcaption>
 </figure>
 
-We are assuming that these models were fine-tuned just with the goal of reducing refusal behaviour.
+We assume these models were fine-tuned mainly to reduce refusal behaviour.
 
 $$base - refusal = uncensored + \Delta(x)$$
 
-We can simply verify this by:
+We can test this empirically by checking whether:
 
-$$base - refusal = uncensored$$
+$$base - refusal \approx uncensored$$
 
-by ignoring *δ(x)* for now.
+by treating the residual *\Delta(x)* as small for now.
 
-We are assuming that:
+We assume that "removing refusal" means zeroing out the activation component along the refusal direction (i.e., an ablation).
 
-$$refusal = 0 \times refusal$$
-
-such that subtracting refusal direction is the same as ablating in the refusal direction.
-
-We explored this and found that the Base - Refusal and Uncensored responded in the same way, with the sentence structure and content.
+We explored this and found that the Base - Refusal and Uncensored responded similarly in sentence structure and content.
 
 | **Base** | **Base - Refusal** | **Uncensored** |
 | --- | --- | --- |
@@ -76,17 +72,17 @@ $$base - refusal - uncensored = \delta(x)$$
 
 ### Extracting $\delta(x)$
 
-For a big set of prompts (~20k) about general topics (examples given below):
+For a large set of prompts (~20k) about general topics (examples given below):
 
 | Example 1 | Example 2 | Example 3 |
 | --- | --- | --- |
 | `Name two health benefits of eating apples` | `Describe the importance of positive thinking` | `Come up with a domain-specific metaphor to explain how a computer works` |
 
-We construct this for each prompt:
+We construct the following for each prompt:
 
-$\Delta(x) = base - uncensored$ at layer refusal is most prominent (Layer 19 for yi-6b-chat).
+$\Delta(x) = base - uncensored$ at the layer where the refusal direction is most prominent (Layer 19 for yi-6b-chat).
 
-$\delta(x) = \Delta(x) - refusal$ at that layer.
+$\delta(x) = \Delta(x) - refusal$ at that same layer.
 
 We store this result in a matrix and analyse using PCA (Principal Component Analysis). This converts our $\delta(x)$ matrix into fewer matrices that are orthogonal to each other, but better representing individual features.
 
@@ -106,24 +102,24 @@ We can see that most of the variance is only within one direction (PC1). Analysi
   <figcaption><em>Figure 6.</em> Exploratory screenshot of which prompts gave the highest and lowest PC1 Scores.</figcaption>
 </figure>
 
-Interestingly, we find that PC1 is associated with prompt length and task complexity, high PC1 scores are short and simple prompts, and low PC1 scores are complex, multi-step tasks. One way to test this new finding is to see if the PC1 is causally related to task complexity. A naive way to do this is checking if we get longer responses from the model.
+Interestingly, we find that PC1 is associated with prompt length and task complexity: high PC1 scores are short and simple prompts, and low PC1 scores are complex, multi-step tasks. One way to test this new finding is to see if PC1 is causally related to task complexity. A naive proxy is whether the model produces longer responses.
 
-For each of these prompts, we intervene at the layer that we found delta (layer 19 for Yi-6B-chat) and scale the activations along the PC1 direction from the range of -10x to 10x.
+For each of these prompts, we intervene at the layer where the refusal direction is strongest (layer 19 for Yi-6B-chat) and scale the activations along the PC1 direction from the range of -10x to 10x.
 
 $$a \leftarrow a + \lambda \cdot PC1$$
 
-Our hypothesis is that the two extremes of these multipliers (10x and -10x) should give distinctly longer and shorter outputs by the model, which we naively measure by the character and word count of the output. Doing this for a small set of 20 prompts shown in Figure 6, we plot our results in Figure 7:
+Our hypothesis is that the two extremes of these multipliers (10x and -10x) should yield distinctly longer and shorter outputs, which we measure by character and word count. Doing this for a small set of 20 prompts shown in Figure 6, we plot our results in Figure 7:
 
 <figure>
   <img src="uncensored-project-write-up/image%206.png" alt="Character length and word count vs PC1 multiplier.">
   <figcaption><em>Figure 7.</em> The character length (left) and word count (right) of the model’s output against the multiplier applied to the PC1 (intervention).</figcaption>
 </figure>
 
-For the prompts that had a high PC1, multiplying in the direction of PC1 by 10x did increase character and word count. This gives us an idea of the kind of more subtle differences between the uncensored and base model. The PC1 direction is the dominant direction within $\delta(x)$ (for computed prompts), which in itself is the difference between our base model and uncensored; therefore our uncensored model has had its response verbosity changed under the fine-tuning process for these high PC1, short and simple prompts.
+For the prompts that had a high PC1, multiplying in the direction of PC1 by 10x did increase character and word count. This suggests a more subtle difference between the uncensored and base model: the dominant direction within $\delta(x)$ seems to modulate response verbosity for these high-PC1, short and simple prompts.
 
-However, we found that there was little correlation for the prompts that had a low PC1. Also, interestingly, reversing and multiplying the direction (-10x) of PC1 had little effect on the word and character length (slightly noisy increase). A possible interpretation is that the model output only stops when `<end_token>` (we increase the max output tokens to 500 to avoid capping long outputs). While this PC1 direction corresponds with the model predicting the `<end_token>` at natural stops of sentences, it doesn’t make the model more likely to predict the `<end_token>` token earlier in the output for the negative multiplier cases.
+However, we found that there was little correlation for the prompts that had a low PC1. Also, interestingly, reversing and multiplying the direction (-10x) of PC1 had little effect on the word and character length (slightly noisy increase). A possible interpretation is that outputs typically stop when the model emits `<end_token>` (we increase the max output tokens to 500 to avoid capping long outputs). While this PC1 direction corresponds to predicting `<end_token>` at natural stopping points, it doesn’t make the model more likely to emit `<end_token>` earlier in the output for negative multiplier cases.
 
-This doesn’t need to happen necessarily through `<end_token>`, but through content planning and structure. The model has an idea of when their response is ‘done’; positively multiplying in this PC1 delays when the model is done with the response, but negatively multiplying doesn’t make the model think to finish its output sooner.
+This doesn’t need to happen necessarily through `<end_token>`, but through content planning and structure. The model tends to end sequences at natural stopping points; positively multiplying this PC1 delays when the model ends, but negatively multiplying doesn’t make it finish sooner.
 
 # What to do next + improve
 
